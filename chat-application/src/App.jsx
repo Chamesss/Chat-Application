@@ -4,8 +4,16 @@ import Application from './pages/Application';
 import RequireAuth from './utils/RequireAuth'
 import RequireNoAuth from './utils/RequireNoAuth'
 import Layout from './Layouts/Layout';
+import {
+  RouterProvider,
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  Navigate
+} from 'react-router-dom'
 
-import { RouterProvider, Route, createBrowserRouter, createRoutesFromElements, Navigate } from 'react-router-dom'
+import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
+import { ThemeProvider as CustomThemeProvider, useThemeContext } from './contexts/themeContext';
 
 
 const router = createBrowserRouter(
@@ -28,8 +36,18 @@ const router = createBrowserRouter(
 )
 
 function App() {
+  const { mode } = useThemeContext();
+
+  const theme = createTheme({
+    palette: {
+      mode: mode,
+    },
+  });
+
   return (
-    <RouterProvider router={router} />
+      <MuiThemeProvider theme={theme}>
+        <RouterProvider router={router} />
+      </MuiThemeProvider>
   );
 }
 
