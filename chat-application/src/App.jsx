@@ -13,7 +13,8 @@ import {
 } from 'react-router-dom'
 
 import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
-import { ThemeProvider as CustomThemeProvider, useThemeContext } from './contexts/themeContext';
+import { useThemeContext } from './contexts/themeContext';
+import { getDesignTokens } from './styles/palette'
 
 
 const router = createBrowserRouter(
@@ -37,17 +38,12 @@ const router = createBrowserRouter(
 
 function App() {
   const { mode } = useThemeContext();
-
-  const theme = createTheme({
-    palette: {
-      mode: mode,
-    },
-  });
+  const theme = createTheme(getDesignTokens(mode));
 
   return (
-      <MuiThemeProvider theme={theme}>
-        <RouterProvider router={router} />
-      </MuiThemeProvider>
+    <MuiThemeProvider theme={theme}>
+      <RouterProvider router={router} />
+    </MuiThemeProvider>
   );
 }
 

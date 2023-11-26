@@ -17,8 +17,7 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-export const useThemeContext = () => {
-    console.log('themecontext === ', ThemeContext)
+export const useThemeContext = () => {  
   const context = useContext(ThemeContext);
   return context;
 };

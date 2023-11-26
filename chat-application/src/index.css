@@ -1,3 +1,8 @@
 :root {
     font-family: 'Roboto';
 }
+
+.MuiTextField-root>.MuiFormLabel-root.Mui-focused {
+    color: rgb(151, 151, 151);
+    border: none
+}

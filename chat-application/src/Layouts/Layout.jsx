@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom'
 import Button from '@mui/material/Button';
 import { useThemeContext } from '../contexts/themeContext';
 import { AppBar } from '@mui/material'
+import { useTheme } from '@mui/material';
 
 
 const Layout = () => {
@@ -15,13 +16,15 @@ const Layout = () => {
         setMode(newMode);
     };
 
+    const theme = useTheme()
+
     return (
         <Paper sx={{
             display:'flex',
             alignItems: 'center',
             justifyContent: 'center',
             flexDirection: 'column',
-            backgroundImage: 'linear-gradient(to right, rgb(95,68,206), rgb(253,188,188))' ,
+            backgroundImage: theme.palette.background.paper ,
             width:'100%',
             minHeight:'100vh'
         }}>
