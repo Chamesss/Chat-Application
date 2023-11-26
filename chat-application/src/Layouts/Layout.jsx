@@ -1,9 +1,8 @@
-import { Container, Paper } from '@mui/material'
+import { Paper } from '@mui/material'
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import Button from '@mui/material/Button';
+import Sidebar from '../components/Sidebar';
 import { useThemeContext } from '../contexts/themeContext';
-import { AppBar } from '@mui/material'
 import { useTheme } from '@mui/material';
 
 
@@ -23,19 +22,12 @@ const Layout = () => {
             display:'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            flexDirection: 'column',
+            flexDirection: 'row',
             backgroundImage: theme.palette.background.paper ,
             width:'100%',
             minHeight:'100vh'
         }}>
-            <AppBar position="fixed" sx={{
-                display: 'flex',
-                alignSelf: 'center',
-                justifySelf: 'center',
-                margin:0,
-            }}>
-                <Button onClick={toggleMode}>Toggle Mode</Button>
-            </AppBar>
+            <Sidebar />
             <Outlet />
         </Paper>
     )

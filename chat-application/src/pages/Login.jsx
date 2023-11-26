@@ -39,7 +39,7 @@ export default function SignIn() {
   return (
     <Container component="main" maxWidth="xs" sx={{
       marginTop: 8,
-      backgroundColor: 'primary.main',
+      backgroundColor: 'primary.mainBg',
       borderRadius: '25px'
     }}>
       <CssBaseline />
@@ -90,13 +90,13 @@ export default function SignIn() {
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2, backgroundColor: "primary.blue" }}
+            sx={{ mt: 3, mb: 2, backgroundColor: "primary.button" }}
           >
             Sign In
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2">
+              <Link href="#" variant="body2" sx={{color:"primary.text"}}>
                 Forgot password?
               </Link>
             </Grid>
