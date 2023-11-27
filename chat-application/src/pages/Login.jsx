@@ -14,9 +14,11 @@ import Container from '@mui/material/Container';
 import { useTheme } from '@mui/material/styles';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { InputAdornment } from '@mui/material';
-//import { styled } from '@mui/material/styles';
+import { Paper } from '@mui/material'
+import { styled } from '@mui/material/styles';
 
 // TODO remove, this demo shouldn't need to reset the theme.
+
 
 
 export default function SignIn() {
@@ -36,22 +38,53 @@ export default function SignIn() {
 
   const theme = useTheme();
 
+
   return (
-    <Container component="main" maxWidth="xs" sx={{
-      marginTop: 8,
-      backgroundColor: 'primary.mainBg',
-      borderRadius: '25px'
+    <Container sx={{
+      display: 'flex',
+      minHeight: '100%',
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: '100%',
     }}>
-      <CssBaseline />
-      <Box mt={8} mb={8} display='flex' flexDirection={'column'} alignItems='center'>
+      <Box display='flex' flexDirection={'column'} alignItems='center' px={4} py={10}
+        sx={{
+          backgroundColor: "primary.sidebar",
+          width: "fit-content",
+          borderRadius: "10px",
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.4)',
+        }}
+      >
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField
+        <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, maxWidth: '400px' }}>
+          <div className='spaced'>
+            <input
+              className='field-input'
+              required
+              id='email'
+              aria-label='Email'
+              name="email"
+              autoComplete='email'
+              autoFocus
+              placeholder='Email *'
+            />
+            <input
+              className='field-input'
+              required
+              id='password'
+              aria-label='password'
+              name="password"
+              autoComplete='password'
+              autoFocus
+              placeholder='Password *'
+            />
+          </div>
+          {/* <TextField
             margin="normal"
             required
             fullWidth
@@ -60,8 +93,8 @@ export default function SignIn() {
             name="email"
             autoComplete="email"
             autoFocus
-            variant='filled'
-          />
+            variant='standard'
+          /> */}
           <TextField
             margin="normal"
             required
@@ -72,7 +105,7 @@ export default function SignIn() {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end" onClick={handleVisibility} sx={{
-                  cursor:'pointer'
+                  cursor: 'pointer'
                 }}>
                   {viewer ? <VisibilityOff /> : <Visibility />}
                 </InputAdornment>
@@ -80,7 +113,7 @@ export default function SignIn() {
             }}
             id="password"
             autoComplete="current-password"
-            variant='filled'
+            variant='standard'
           />
           <FormControlLabel
             control={<Checkbox value="remember" color="secondary" />}
@@ -96,7 +129,7 @@ export default function SignIn() {
           </Button>
           <Grid container>
             <Grid item xs>
-              <Link href="#" variant="body2" sx={{color:"primary.text"}}>
+              <Link href="#" variant="body2" sx={{ color: "primary.text" }}>
                 Forgot password?
               </Link>
             </Grid>

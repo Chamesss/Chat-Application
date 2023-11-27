@@ -13,9 +13,10 @@ export const getDesignTokens = (mode) => ({
           msgGrey: 'rgba(234,232,237,1)',
           msgBlue: 'rgba(42,139,242,1)',
           title: 'rgba(68,77,86,1)',
-          text: grey[900],
+          textBlack: grey[900],
+          textWhite: grey[200],
           svgs: 'rgba(151,151,151,1)',
-          input: grey[300],
+          input: 'rgba(255,255,255,1)',
           button: blue[800],
           sidebar: 'rgba(200,200,200,0.5)',
         },
@@ -24,7 +25,7 @@ export const getDesignTokens = (mode) => ({
           secondary: grey[800],
         },
         background: {
-          paper: 'linear-gradient(to right, rgb(95,68,206), rgb(253,188,188))',
+          paper: 'transparent',
         },
       } : {
         // palette values for dark mode
@@ -54,7 +55,7 @@ export const getDesignTokens = (mode) => ({
     MuiTextField: {
       styleOverrides: {
         root: ({ ownerState, theme }) => ({
-          ...(ownerState.variant === 'filled' && {
+          ...(ownerState.variant === 'standard' && {
             backgroundColor: theme.palette.primary.input,
           }),
         }),
