@@ -16,6 +16,9 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { InputAdornment } from '@mui/material';
 import { Paper } from '@mui/material'
 import { styled } from '@mui/material/styles';
+import { Divider } from '@mui/material';
+import { GoogleLogo } from '../styles/svgs';
+import { Stack } from '@mui/material'
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -47,24 +50,25 @@ export default function SignIn() {
       alignItems: 'center',
       width: '100%',
     }}>
-      <Box display='flex' flexDirection={'column'} alignItems='center' px={4} py={10}
+      <Box display='flex' flexDirection={'column'} alignItems='center' px={5} py={5}
         sx={{
-          backgroundColor: "primary.sidebar",
           width: "fit-content",
           borderRadius: "10px",
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.4)',
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+          backgroundColor: 'primary.sidebar'
         }}
       >
-        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign in
+        <Typography component="h1" variant="h5" sx={{ mb: 1 }}>
+          Login
+        </Typography>
+        <Typography variant="p">
+          Welcome back 👋
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1, maxWidth: '400px' }}>
           <div className='spaced'>
+            <label className='spaced'>Email:</label>
             <input
-              className='field-input'
+              className='field-input-email'
               required
               id='email'
               aria-label='Email'
@@ -73,16 +77,31 @@ export default function SignIn() {
               autoFocus
               placeholder='Email *'
             />
-            <input
-              className='field-input'
-              required
-              id='password'
-              aria-label='password'
-              name="password"
-              autoComplete='password'
-              autoFocus
-              placeholder='Password *'
-            />
+            <label className='spaced' id='label'>Password:</label>
+            <Stack sx={{
+              display: 'flex', flexDirection: 'row', justifyContent: 'start', alignItems: 'center', backgroundColor: 'primary.white', padding: '0 10px', borderRadius: '5px', mt:'5px', border: '2px solid rgba(170, 170, 170, 0.3);', '&:hover': {
+                border: '2px solid #1565c0',
+                cursor:'text',
+              },
+            }}>
+              <input
+                className='field-input'
+                required
+                id='password'
+                aria-label='password'
+                name="password"
+                autoComplete='password'
+                autoFocus
+                placeholder='Password *'
+                type={viewer ? "text" : "password"}
+              />
+              <InputAdornment onClick={handleVisibility} sx={{
+                cursor: 'pointer',
+                color: 'primary.svgs'
+              }}>
+                {viewer ? <VisibilityOff /> : <Visibility />}
+              </InputAdornment>
+            </Stack>
           </div>
           {/* <TextField
             margin="normal"
@@ -95,7 +114,7 @@ export default function SignIn() {
             autoFocus
             variant='standard'
           /> */}
-          <TextField
+          {/* <TextField
             margin="normal"
             required
             fullWidth
@@ -114,9 +133,9 @@ export default function SignIn() {
             id="password"
             autoComplete="current-password"
             variant='standard'
-          />
+          /> */}
           <FormControlLabel
-            control={<Checkbox value="remember" color="secondary" />}
+            control={<Checkbox value="remember" color="secondary" size="small" />}
             label="Remember me"
           />
           <Button
@@ -127,18 +146,23 @@ export default function SignIn() {
           >
             Sign In
           </Button>
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2" sx={{ color: "primary.text" }}>
-                Forgot password?
-              </Link>
-            </Grid>
-            <Grid item>
-              <Link href="/register" variant="body2" color={theme.palette.text.primary}>
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
+          <Divider>OR</Divider>
+          <Button
+            type="submit"
+            fullWidth
+            variant="outlined"
+            sx={{ mt: 2, mb: 2, color: 'primary.svgs' }}
+          >
+            <GoogleLogo /><Typography sx={{ marginLeft: '7px' }}>Continue with Google</Typography>
+          </Button>
+          <Stack spacing={0.25} sx={{ textAlign: 'center' }}>
+            <Link href="/register" variant="body2" color={theme.palette.text.primary} >
+              {"Don't have an account? Sign Up"}
+            </Link>
+            <Link href="#" variant="body2" sx={{ color: "primary.text" }}>
+              Forgot password?
+            </Link>
+          </Stack>
         </Box>
       </Box>
     </Container>

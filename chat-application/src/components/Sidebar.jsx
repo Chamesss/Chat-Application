@@ -17,7 +17,7 @@ const Sidebar = () => {
         width: 62,
         height: 34,
         padding: 7,
-        transform: 'rotate(90deg)',
+        transform: 'rotate(0deg)',
         '& .MuiSwitch-switchBase': {
             margin: 1,
             padding: 0,
@@ -29,7 +29,7 @@ const Sidebar = () => {
                     backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent(
                         '#fff',
                     )}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')`,
-                    transform: 'rotate(270deg)',
+                    transform: 'rotate(0deg)',
                 },
                 '& + .MuiSwitch-track': {
                     opacity: 1,
@@ -63,31 +63,34 @@ const Sidebar = () => {
     }));
 
     return (
-        <Box position="relative" sx={{
-            width: "4%",
-            height: "100vh",
+        <Box sx={{
+            width: "100vw",
+            height: "2%",
             backgroundColor: "primary.sidebar",
-            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.4)',
-            p:"1rem"
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+            p: "0.5rem 1.5rem",
+            position:'absulote',
+            top:'0'
         }}>
             <Stack sx={{
-                display:'flex',
-                justifyContent:'space-between',
-                alignItems:'center',
+                display: 'flex',
+                flexDirection:'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
                 height: '100%',
-                width:'100%'
+                width: '100%'
             }}>
-            <Stack sx={{
-                alignSelf: "center",
-            }}>
-                <Logo />
-            </Stack>
+                <Stack sx={{
+                    alignSelf: "center",
+                }}>
+                    <Logo />
+                </Stack>
 
-            <Stack sx={{
-                alignSelf: "center",
-            }}>
-                <MaterialUISwitch sx={{ m: 1 }} value="active" checked={mode === 'dark'} onClick={() => toggleMode()} />
-            </Stack>
+                <Stack sx={{
+                    alignSelf: "center",
+                }}>
+                    <MaterialUISwitch sx={{ m: 1 }} value="active" checked={mode === 'dark'} onClick={() => toggleMode()} />
+                </Stack>
             </Stack>
 
         </Box>

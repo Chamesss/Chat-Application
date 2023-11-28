@@ -7,18 +7,19 @@ export const getDesignTokens = (mode) => ({
       ? {
         // palette values for light mode
         primary: {
-          main: 'rgba(255,255,255,1)',
+          main: blue[800],
+          white: 'rgba(255,255,255,1)',
           mainBg: 'rgba(255,255,255,0.85)',
-          mainBgSb: 'rgba(222,222,255,0.85)',
+          mainBgSb: 'rgba(255,255,255,1)',
           msgGrey: 'rgba(234,232,237,1)',
           msgBlue: 'rgba(42,139,242,1)',
           title: 'rgba(68,77,86,1)',
           textBlack: grey[900],
           textWhite: grey[200],
-          svgs: 'rgba(151,151,151,1)',
+          title: 'rgba(151,151,151,1)',
           input: 'rgba(255,255,255,1)',
           button: blue[800],
-          sidebar: 'rgba(200,200,200,0.5)',
+          sidebar: 'rgba(255,255,255,1)',
         },
         text: {
           primary: grey[900],
@@ -32,7 +33,7 @@ export const getDesignTokens = (mode) => ({
         primary: {
           main: 'rgba(34, 34, 34, 1)',
           mainBg: 'rgba(50, 50, 50, 0.85)',
-          mainBgSb: 'rgba(50,50,50,0.85)',
+          white: 'rgba(255,255,255,1)',
           msgGrey: 'rgba(44,42,47,1)',
           msgBlue: 'rgba(0,78,137,1)',
           title: 'rgba(255,255,255,1)',
