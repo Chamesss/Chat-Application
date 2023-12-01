@@ -3,19 +3,13 @@ import Register from './pages/Register';
 import Application from './pages/Application';
 import RequireAuth from './utils/RequireAuth'
 import RequireNoAuth from './utils/RequireNoAuth'
-import Layout from './Layouts/Layout';
-import {
+import Layout from './Layouts/Layout';import {
   RouterProvider,
   Route,
   createBrowserRouter,
   createRoutesFromElements,
   Navigate
 } from 'react-router-dom'
-
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
-import { useThemeContext } from './contexts/themeContext';
-import { getDesignTokens } from './styles/palette'
-
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,14 +31,9 @@ const router = createBrowserRouter(
 )
 
 function App() {
-  const { mode } = useThemeContext();
-  const theme = createTheme(getDesignTokens(mode));
-
   return (
-    <MuiThemeProvider theme={theme}>
-      <RouterProvider router={router} />
-    </MuiThemeProvider>
-  );
+    <RouterProvider router={router} />
+  )
 }
 
 export default App
