@@ -9,7 +9,7 @@ const Login = () => {
     <Container maxW='container.sm' p='15' centerContent>
       <Stack spacing='24px' display='flex' alignItems='center'>
         <Container centerContent>
-          <img src='./media/logo.svg' alt='logo' style={{ maxWidth: '200px' }} />
+          <img src='./media/logo.svg' alt='logo' style={{ maxWidth: '150px' }} />
         </Container>
         <Text fontSize='5xl' fontWeight='600'>Sign in</Text>
         <Text fontSize='md' mb='12px'>Sign in and start chatting right away!</Text>
