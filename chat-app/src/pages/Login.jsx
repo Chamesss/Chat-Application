@@ -1,7 +1,7 @@
 import React from 'react'
-import { Container, Stack, Text, Checkbox, Link, Button, useColorMode, Input } from '@chakra-ui/react'
+import { Container, Stack, Text, Checkbox, Button, useColorMode } from '@chakra-ui/react'
 import CustomInput from '../components/Input'
-
+import { Link } from 'react-router-dom'
 
 const Login = () => {
   const { colorMode } = useColorMode();
@@ -27,17 +27,21 @@ const Login = () => {
           />
           <Stack display='flex' w='100%' justifyContent='space-between' flexDirection='row'>
             <Checkbox defaultChecked
-            sx={{
-              'input:not(:checked) + span': {
-                backgroundColor: colorMode === 'light' ? 'gray.200' : 'gray.800',
-                borderColor: colorMode === 'light' ? 'gray.300' : 'gray.600',
-              },
-            }}
+              sx={{
+                'input:not(:checked) + span': {
+                  backgroundColor: colorMode === 'light' ? 'gray.200' : 'gray.800',
+                  borderColor: colorMode === 'light' ? 'gray.300' : 'gray.600',
+                },
+              }}
             >Remember me</Checkbox>
-            <Link color={colorMode === 'light' ? 'blue.700' : 'blue.200'}>Forgot password?</Link>
+            <Link className='link-component' to='null' style={{
+              color: colorMode === 'light' ? '#004865' : '#90CAF9',
+            }}>Forgot password?</Link>
           </Stack>
           <Button w='100%' color='white' bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}>Login</Button>
-          <Link color={colorMode === 'light' ? 'blue.700' : 'blue.200'}>Not a member? Create an account</Link>
+          <Link className='link-component' to='/register' style={{
+            color: colorMode === 'light' ? '#004865' : '#90CAF9'
+          }}>Not a member? Create an account</Link>
         </Stack>
       </Stack>
     </Container>

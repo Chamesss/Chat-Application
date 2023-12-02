@@ -3,13 +3,15 @@ import Register from './pages/Register';
 import Application from './pages/Application';
 import RequireAuth from './utils/RequireAuth'
 import RequireNoAuth from './utils/RequireNoAuth'
-import Layout from './Layouts/Layout';import {
+import Layout from './Layouts/Layout'; import {
   RouterProvider,
   Route,
   createBrowserRouter,
   createRoutesFromElements,
   Navigate
 } from 'react-router-dom'
+import { useState, useEffect } from 'react';
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -31,9 +33,17 @@ const router = createBrowserRouter(
 )
 
 function App() {
+  const [showRouter, setShowRouter] = useState(false);
+
+  useEffect(() => {
+    setShowRouter(true);
+  }, []);
+
   return (
-    <RouterProvider router={router} />
-  )
+    <>
+      {showRouter && <RouterProvider router={router} />}
+    </>
+  );
 }
 
 export default App
