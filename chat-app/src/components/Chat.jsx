@@ -23,7 +23,7 @@ const Chat = () => {
 
 
             <Box p={1} w='100%' display='flex' justifyContent='space-between' borderRadius='20px' sx={{
-                ':hover': { backgroundColor: '#F0F0F0', cursor: 'pointer' }
+                ':hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
             }}>
                 <Center direction='row' p={2}>
                     <Avatar size='lg' name='Dan Abrahmov' src='https://bit.ly/dan-abramov' />
@@ -39,7 +39,7 @@ const Chat = () => {
             </Box>
 
             <Box p={1} w='100%' display='flex' justifyContent='space-between' borderRadius='20px' sx={{
-                ':hover': { backgroundColor: '#F0F0F0', cursor: 'pointer' }
+                ':hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
             }}>
                 <Center direction='row' p={2}>
                     <Avatar size='lg' name='Kent Dodds' src='https://bit.ly/kent-c-dodds' />
@@ -55,7 +55,7 @@ const Chat = () => {
             </Box>
 
             <Box p={1} w='100%' display='flex' justifyContent='space-between' borderRadius='20px' sx={{
-                ':hover': { backgroundColor: '#F0F0F0', cursor: 'pointer' }
+                ':hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
             }}>
                 <Center direction='row' p={2}>
                     <Avatar size='lg' name='Ryan Florence' src='https://bit.ly/ryan-florence' />
