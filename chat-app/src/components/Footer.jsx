@@ -8,7 +8,7 @@ const Footer = () => {
         window.location.href = `mailto:chamsedin.azouz@gmail.com`;
     }
     return (
-        <Container bgColor={colorMode === 'light' ? '#000032' : '#00001E'} maxW='97%' textAlign='center' centerContent p={8} mt={8} mb={5} borderRadius={6} boxShadow='dark-lg'>
+        <Container bgColor={colorMode === 'light' ? '#000032' : '#00001E'} maxW='97%' textAlign='center' centerContent p={8} mt={8} mb={5} borderRadius={6} boxShadow='lg'>
             <VStack>
                 <HStack spacing={6}>
                     <GitSvg /><LinkedinSvg /><WhatsappSvg />

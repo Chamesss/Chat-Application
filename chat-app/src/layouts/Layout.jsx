@@ -7,13 +7,11 @@ import Footer from '../components/Footer'
 const Layout = () => {
   const { colorMode } = useColorMode();
   return (
-    <Stack>
-      <Box w='100' minH='100vh' bg={colorMode === "light" ? "#EEF5FF" : "#252E48"}>
+      <Box w='100%' minH='100vh' bg={colorMode === "light" ? "#EEF5FF" : "#252E48"}>
         <Header />
         <Outlet />
         <Footer />
       </Box>
-    </Stack>
   )
 }
 
