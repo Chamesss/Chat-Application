@@ -7,6 +7,7 @@ const CustomInput = (props) => {
   return (
     <ChakraInput
       {...props}
+      boxShadow='base'
       sx={{
         backgroundColor: colorMode === 'light' ? 'gray.200' : 'gray.800',
         borderColor: colorMode === 'light' ? 'gray.300' : 'gray.600',

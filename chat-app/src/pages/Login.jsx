@@ -38,13 +38,13 @@ const Login = () => {
               color: colorMode === 'light' ? '#004865' : '#90CAF9',
             }}>Forgot password?</Link>
           </Stack>
-          <Button w='100%' color='white' bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}>Login</Button>
-          <Link className='link-component' to='/register' style={{
-            color: colorMode === 'light' ? '#004865' : '#90CAF9'
-          }}>Not a member? Create an account</Link>
-        </Stack>
+          <Button boxShadow='base' w='100%' color='white' sx={{ '&:hover': { backgroundColor:  colorMode === 'light' ? 'blue.500' : 'blue.700' }}} bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}>Login</Button>
+        <Link className='link-component' to='/register' style={{
+          color: colorMode === 'light' ? '#004865' : '#90CAF9'
+        }}>Not a member? Create an account</Link>
       </Stack>
-    </Container>
+    </Stack>
+    </Container >
   )
 }
 

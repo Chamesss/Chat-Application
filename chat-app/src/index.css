@@ -11,3 +11,12 @@ body {
 .link-component:hover {
   opacity: 0.8;
 }
+
+.svg {
+  transition: all 0.3s cubic-bezier(.05,.42,.56,1.02)
+}
+.svg:hover {
+  cursor: pointer;
+  scale: 1.1;
+  filter: drop-shadow(0 0 0.5rem rgba(0, 51, 255, 0.9))
+}

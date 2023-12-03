@@ -50,7 +50,7 @@ const Register = () => {
             >I want to receive inspiration, marketing promotions and updates via email.
             </Checkbox>
           </Stack>
-          <Button w='100%' color='white' bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}>Sign up</Button>
+          <Button boxShadow='base' w='100%' color='white' sx={{ '&:hover': { backgroundColor:  colorMode === 'light' ? 'blue.500' : 'blue.700' }}} bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}>Sign up</Button>
           <Link className='link-component' to='/login' style={{
             color: colorMode === 'light' ? '#004865' : '#90CAF9'
           }}>Already a member? Sign in instead</Link>
