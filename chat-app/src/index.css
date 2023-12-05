@@ -12,6 +12,7 @@ body {
   opacity: 0.8;
 }
 
+/* svg styling footer */
 .svg {
   transition: all 0.3s cubic-bezier(.05,.42,.56,1.02)
 }
@@ -19,4 +20,20 @@ body {
   cursor: pointer;
   scale: 1.1;
   filter: drop-shadow(0 0 0.5rem rgba(0, 51, 255, 0.9))
+}
+
+/* scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+ ::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
 }
