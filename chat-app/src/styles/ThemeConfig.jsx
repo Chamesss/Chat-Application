@@ -6,7 +6,7 @@ const config = {
 };
 
 export const chakraCustomTheme = extendTheme({
-  config
+  config,
 });
 
 // export function deleteColorModeInLocalStorage() {

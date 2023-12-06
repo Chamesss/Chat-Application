@@ -4,12 +4,12 @@ import { Avatar, Stack, AvatarBadge, useColorMode } from '@chakra-ui/react'
 const OnlineUsers = () => {
   const { colorMode } = useColorMode()
   const Data = [
-    { name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
-    { name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
-    { name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
-    { name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
-    { name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
-    { name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
+    { id: 1, name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
+    { id: 2, name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
+    { id: 3, name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
+    { id: 4, name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
+    { id: 5, name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
+    { id: 6, name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
   ]
   return (
     <Stack w='100%' direction='row' overflow='auto' spacing='0.5rem' p={2}>

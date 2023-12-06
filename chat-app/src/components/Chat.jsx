@@ -1,19 +1,26 @@
 import { InputGroup, InputLeftElement, Stack, Input, useColorMode, AvatarBadge, Box, Text, Avatar, Center } from '@chakra-ui/react'
 import { Search2Icon } from '@chakra-ui/icons'
 import OnlineUsers from './OnlineUsers'
+import { useChat } from '../Contexts/ChatContext'
 
 const Chat = () => {
     const { colorMode } = useColorMode()
+    const { setSelectedConversation } = useChat()
     const Data = [
-        { name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
-        { name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
-        { name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
-        { name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
-        { name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
-        { name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
+        { id: 1, name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
+        { id: 2, name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
+        { id: 3, name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
+        { id: 4, name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
+        { id: 5, name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
+        { id: 6, name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
     ]
+
+    const handleConversationClick = (id) => {
+        setSelectedConversation(id)
+    }
+
     return (
-        <Stack p={4}>
+        <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} boxShadow='md'>
             <InputGroup>
                 <InputLeftElement pointerEvents='none'>
                     <Search2Icon />
@@ -30,9 +37,9 @@ const Chat = () => {
                 />
             </InputGroup>
             <OnlineUsers />
-            <Stack maxH='60vh' overflow='auto'>
+            <Stack maxH='68vh' overflow='auto'>
                 {Data.map((user) => (
-                    <Box p={1} w='100%' display='flex' justifyContent='space-between' borderRadius='20px' sx={{
+                    <Box p={1} w='100%' onClick={() => handleConversationClick(user.id)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
                         '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
                     }}>
                         <Center direction='row' p={2}>

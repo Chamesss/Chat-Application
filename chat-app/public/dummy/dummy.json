@@ -1,0 +1,90 @@
+[
+    {
+        "id": 200,
+        "participant": [
+            {
+                "user": 5000,
+                "sockets": [
+                    "socket1",
+                    "socket2"
+                ]
+            },
+            {
+                "user": 1,
+                "sockets": [
+                    "socket3"
+                ]
+            }
+        ],
+        "messages": [
+            {
+                "to": 1,
+                "from": 5000,
+                "created_at": "2023-01-01T12:00:00Z",
+                "text": "Hey, how are you doing?"
+            },
+            {
+                "to": 5000,
+                "from": 1,
+                "created_at": "2023-01-01T12:05:00Z",
+                "text": "I'm good, thanks! How about you?"
+            },
+            {
+                "to": 1,
+                "from": 5000,
+                "created_at": "2023-01-01T12:10:00Z",
+                "text": "I'm doing well too. Any plans for the day?"
+            },
+            {
+                "to": 1,
+                "from": 5000,
+                "created_at": "2023-01-01T12:15:00Z",
+                "text": "Not much, just relaxing. How about you?"
+            }
+        ]
+    },
+    {
+        "id": 201,
+        "participant": [
+            {
+                "user": 5000,
+                "sockets": [
+                    "socket4",
+                    "socket5"
+                ]
+            },
+            {
+                "user": 2,
+                "sockets": [
+                    "socket6"
+                ]
+            }
+        ],
+        "messages": [
+            {
+                "to": 2,
+                "from": 5000,
+                "created_at": "2023-02-01T15:30:00Z",
+                "text": "Hello there! What's up?"
+            },
+            {
+                "to": 2,
+                "from": 5000,
+                "created_at": "2023-02-01T15:35:00Z",
+                "text": "Hey! Not much, just working on some projects. How about you?"
+            },
+            {
+                "to": 2,
+                "from": 5000,
+                "created_at": "2023-02-01T15:40:00Z",
+                "text": "Same here, trying to stay productive. Anything exciting happening on your end?"
+            },
+            {
+                "to": 2,
+                "from": 5000,
+                "created_at": "2023-02-01T15:45:00Z",
+                "text": "Not really, just the usual. How about we grab a coffee sometime?"
+            }
+        ]
+    }
+]

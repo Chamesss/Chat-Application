@@ -1,14 +1,24 @@
-import { Container, useColorMode, VStack, Text, HStack, Stack } from '@chakra-ui/react'
-import React from 'react'
-import { GitSvg, LinkedinSvg, WhatsappSvg, Phone, Email } from '../styles/svgs'
+import {
+    Container,
+    VStack,
+    Text,
+    HStack,
+    Stack,
+} from '@chakra-ui/react'
+import {
+    GitSvg,
+    LinkedinSvg,
+    WhatsappSvg,
+    Phone,
+    Email,
+} from '../styles/svgs'
 
 const Footer = () => {
-    const { colorMode } = useColorMode()
     const handleEmailClick = () => {
         window.location.href = `mailto:chamsedin.azouz@gmail.com`;
     }
     return (
-        <Container bgColor={colorMode === 'light' ? '#000032' : '#00001E'} maxW='97%' textAlign='center' centerContent p={8} mt={8} mb={5} borderRadius={6} boxShadow='lg'>
+        <Container bgColor='#131827' maxW='97%' textAlign='center' centerContent p={8} mt={6} mb={5} borderRadius={6} boxShadow='lg'>
             <VStack>
                 <HStack spacing={6}>
                     <GitSvg /><LinkedinSvg /><WhatsappSvg />
