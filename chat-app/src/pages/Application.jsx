@@ -7,7 +7,7 @@ const Application = () => {
   const { colorMode } = useColorMode();
   return (
     <ChatProvider>
-      <Stack m='auto' flexDirection='row' textAlign='center' centerContent px={6}>
+      <Stack w='100%' m='auto' flexDirection='row' textAlign='center' centerContent px={6}>
         <Stack w='30%'>
           <Chat />
         </Stack>

@@ -44,7 +44,7 @@ body {
 
 /* icons styling */
 .icon {
-  font-size: 2.5rem;
+  font-size: 2rem;
   margin-right: 0.8rem;
   padding: 0.2rem;
   border-radius: 300px;
@@ -55,6 +55,19 @@ body {
 .icon:hover,
 .icon:focus {
   cursor: pointer;
+}
+
+.icon-2 {
+  padding: 0.5rem;
+  border-radius: 300px;
+}
+
+.margin-right {
+  margin-right: 0.8rem;
+}
+
+.margin-left {
+  margin-left: 0.8rem;
 }
 
 .icon-dark:hover {

@@ -7,8 +7,8 @@ const ActionMenu = () => {
     return (
         <Stack display='flex' direction='row' justifyContent='space-between' alignItems='center'>
             <HStack>
-                <Avatar></Avatar>
-                <Text textAlign='start' fontWeight='600'>User name</Text>
+                <Avatar src='https://bit.ly/dan-abramov' />
+                <Text textAlign='start' fontWeight='600'>Dan Abrahmov</Text>
             </HStack>
             <Menu>
                 <MenuButton p={4} borderRadius={25} sx={{ '&:hover, &:focus': { bgColor: colorMode === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)' } }}><BsThreeDots /></MenuButton>

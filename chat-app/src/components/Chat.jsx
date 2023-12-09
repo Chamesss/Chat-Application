@@ -47,7 +47,7 @@ const Chat = () => {
                                 <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={user.stats} />
                             </Avatar>
                             <Stack ml='10px' textAlign='start'>
-                                <Text fontWeight='700' fontSize='md'>Dan Abrahmov</Text>
+                                <Text fontWeight='700' fontSize='md'>{user.name}</Text>
                                 <Text fontWeight='700' color='#6F7276' fontSize='sm'>This is last message</Text>
                             </Stack>
                         </Center>
