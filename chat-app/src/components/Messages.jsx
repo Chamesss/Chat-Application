@@ -1,7 +1,10 @@
 import DefaultMessage from './DefaultMessage'
-import { Stack, Text, useColorMode } from '@chakra-ui/react'
+import { Divider, Stack, Text, useColorMode, Menu, MenuButton, MenuList, MenuItem, HStack, Avatar } from '@chakra-ui/react'
 import { useChat } from '../Contexts/ChatContext'
 import { useEffect, useState } from 'react'
+import ActionMenu from './ActionMenu'
+import MessageInput from './MessageInput'
+import StartConversation from './StartConversation'
 
 const Messages = () => {
   const { colorMode } = useColorMode()
@@ -30,43 +33,51 @@ const Messages = () => {
       {!selectedConversationId ? (
         <DefaultMessage />
       ) : (
-        <>
-          {conversationData ? (
-            <>
-              {conversationData.messages.map((message) => (
-                <Stack display='flex' w='100%'>
-                  {message.to === myId ? (
-                    <Text
-                      borderRadius={20}
-                      px={4}
-                      py={2}
-                      w='fit-content'
-                      color='white'
-                      alignSelf='end'
-                      bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
-                    >
-                      {message.text}
-                    </Text>
-                  ) : (
-                    <Text
-                      borderRadius={20}
-                      px={4}
-                      py={2}
-                      w='fit-content'
-                      alignSelf='start'
-                      bgColor={colorMode === 'light' ? '#EAE8ED' : '#252E48'}
-                    >
-                      {message.text}
-                    </Text>
-                  )}
-                </Stack>
-              ))}
-            </>
-          ) : (
-            <>
-            </>
-          )}
-        </>
+        <Stack h='100%' justifyContent='space-between'>
+          <Stack>
+            <ActionMenu />
+            <Divider />
+            <Stack>
+              {conversationData ? (
+                <>
+                  {conversationData.messages.map((message) => (
+                    <Stack display='flex' w='100%'>
+                      {message.to === myId ? (
+                        <Text
+                          borderRadius={20}
+                          px={4}
+                          py={2}
+                          w='fit-content'
+                          color='white'
+                          alignSelf='end'
+                          bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
+                        >
+                          {message.text}
+                        </Text>
+                      ) : (
+                        <Text
+                          borderRadius={20}
+                          px={4}
+                          py={2}
+                          w='fit-content'
+                          alignSelf='start'
+                          bgColor={colorMode === 'light' ? '#EAE8ED' : '#252E48'}
+                        >
+                          {message.text}
+                        </Text>
+                      )}
+                    </Stack>
+                  ))}
+                </>
+              ) : (
+                <StartConversation />
+              )}
+            </Stack>
+          </Stack>
+          <Stack display='flex' justifySelf='flex-end'>
+            <MessageInput />
+          </Stack>
+        </Stack>
       )}
     </Stack>
   )

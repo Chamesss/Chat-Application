@@ -14,8 +14,9 @@ body {
 
 /* svg styling footer */
 .svg {
-  transition: all 0.3s cubic-bezier(.05,.42,.56,1.02)
+  transition: all 0.3s cubic-bezier(.05, .42, .56, 1.02)
 }
+
 .svg:hover {
   cursor: pointer;
   scale: 1.1;
@@ -27,13 +28,60 @@ body {
   width: 4px;
   height: 4px;
 }
+
 ::-webkit-scrollbar-track {
-  background: transparent; 
+  background: transparent;
 }
- ::-webkit-scrollbar-thumb {
+
+::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
+}
+
+/* icons styling */
+.icon {
+  font-size: 2.5rem;
+  margin-right: 0.8rem;
+  padding: 0.2rem;
+  border-radius: 300px;
+  width: auto;
+  height: auto;
+}
+
+.icon:hover,
+.icon:focus {
+  cursor: pointer;
+}
+
+.icon-dark:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon-light:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.rotate {
+  animation: rotateAnimation 0.1s linear forwards;
+}
+
+.init {
+  transform: rotate(45deg);
+  animation: initAnimation 0.1s linear forwards;
+}
+
+@keyframes rotateAnimation {
+  to {
+    transform: rotate(45deg);
+  }
+}
+
+@keyframes initAnimation {
+  to {
+    transform: rotate(0deg);
+  }
 }
