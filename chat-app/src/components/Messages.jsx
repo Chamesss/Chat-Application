@@ -11,7 +11,6 @@ const Messages = () => {
   const { selectedConversationId } = useChat();
   const [conversationData, setConversationData] = useState(null);
   const myId = 5000;
-  console.log(conversationData)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,7 +26,18 @@ const Messages = () => {
         console.error('Error fetching data:', error);
       }
     };
+    const fetchReceiver = async () => {
+      try {
+        const response = await fetch('./dummy/users.json')
+        const data = await response.json()
+        const receiver = data.find((user) => user.id === selectedConversationId)
+        console.log(receiver)
+      } catch (error) {
+        console.log(error)
+      }
+    }
     fetchData();
+    fetchReceiver();
   }, [selectedConversationId]);
 
   return (

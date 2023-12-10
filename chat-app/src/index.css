@@ -62,12 +62,8 @@ body {
   border-radius: 300px;
 }
 
-.margin-right {
-  margin-right: 0.8rem;
-}
-
 .margin-left {
-  margin-left: 0.8rem;
+  margin-left: 0.6rem;
 }
 
 .icon-dark:hover {

@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "firstName": "Eli",
+        "lastName": "Martinez",
+        "avatar": 1,
+        "email": "eli.martinez@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 2,
+        "firstName": "Katherine",
+        "lastName": "Thompson",
+        "avatar": 5,
+        "email": "katherine@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 3,
+        "firstName": "Marvin",
+        "lastName": "S. Harvey",
+        "avatar": 2,
+        "email": "marvin@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 4,
+        "firstName": "Marilyn",
+        "lastName": "Rodriguez",
+        "avatar": 6,
+        "email": "marilyn@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 5,
+        "firstName": "Lynda",
+        "lastName": "Gray",
+        "avatar": 7,
+        "email": "lynda@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 6,
+        "firstName": "Anna",
+        "lastName": "Hicks",
+        "avatar": 8,
+        "email": "Anna@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 7,
+        "firstName": "Joshua",
+        "lastName": "Graham",
+        "avatar": 3,
+        "email": "joshuagraham@email.com",
+        "password": "123456",
+        "status": "Offline"
+    },
+    {
+        "id": 8,
+        "firstName": "Joseph",
+        "lastName": "Williams",
+        "avatar": 4,
+        "email": "joseph@email.com",
+        "password": "123456",
+        "status": "Offline"
+    }
+]
