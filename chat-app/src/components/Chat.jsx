@@ -14,6 +14,28 @@ const Chat = () => {
         { id: 5, name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
         { id: 6, name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
     ]
+    const myId = 5000
+
+    const getConversations = async () => {
+        try {
+            const response = await fetch('./dummy/dummy.json');
+            const data = await response.json()
+            const conversations = data.find((conversation) =>
+                conversation.participant.every((participant) => participant.user === myId)
+            );
+            console.log(conversations)
+            const extractedIds = conversations.map((conversation) =>
+                conversation.participant.map((participant) => participant.user)
+            );
+
+            const idsArray = extractedIds.flat().filter((id) => id !== myId);
+            console.log('idArrays == ', idsArray)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    getConversations()
 
     const handleConversationClick = (id) => {
         setSelectedConversation(id)
