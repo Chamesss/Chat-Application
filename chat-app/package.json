@@ -16,6 +16,8 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource-variable/rubik": "^5.0.19",
     "@fontsource/josefin-sans": "^5.0.17",
+    "@tanstack/react-query": "^5.13.4",
+    "axios": "^1.6.2",
     "emoji-picker-react": "^4.5.16",
     "framer-motion": "^10.16.9",
     "react": "^18.2.0",

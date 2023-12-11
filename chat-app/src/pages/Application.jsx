@@ -1,7 +1,7 @@
 import { Stack, useColorMode } from '@chakra-ui/react'
 import Chat from '../components/Chat'
 import Messages from '../components/Messages'
-import { ChatProvider } from '../Contexts/ChatContext'
+import { ChatProvider } from '../Contexts/ChatProvider'
 
 const Application = () => {
   const { colorMode } = useColorMode();

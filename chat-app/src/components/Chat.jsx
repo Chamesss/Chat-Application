@@ -1,7 +1,7 @@
 import { InputGroup, InputLeftElement, Stack, Input, useColorMode, AvatarBadge, Box, Text, Avatar, Center } from '@chakra-ui/react'
 import { Search2Icon } from '@chakra-ui/icons'
 import OnlineUsers from './OnlineUsers'
-import { useChat } from '../Contexts/ChatContext'
+import { useChat } from '../Contexts/ChatProvider'
 
 const Chat = () => {
     const { colorMode } = useColorMode()

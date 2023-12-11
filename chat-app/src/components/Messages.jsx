@@ -1,6 +1,6 @@
 import DefaultMessage from './DefaultMessage'
 import { Divider, Stack, Text, useColorMode, Avatar } from '@chakra-ui/react'
-import { useChat } from '../Contexts/ChatContext'
+import { useChat } from '../Contexts/ChatProvider'
 import { useEffect, useState } from 'react'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'

@@ -1,2 +1,4 @@
 chat-app/.env
 chat-app/node_modules
+server/.env
+server/node_modules
