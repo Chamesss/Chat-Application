@@ -1,10 +1,9 @@
-import { Stack, useColorMode } from '@chakra-ui/react'
+import { Stack } from '@chakra-ui/react'
 import Chat from '../components/Chat'
 import Messages from '../components/Messages'
 import { ChatProvider } from '../Contexts/ChatProvider'
 
 const Application = () => {
-  const { colorMode } = useColorMode();
   return (
     <ChatProvider>
       <Stack w='100%' m='auto' flexDirection='row' textAlign='center' centerContent px={6}>

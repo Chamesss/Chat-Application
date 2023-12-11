@@ -22,14 +22,14 @@ mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedT
     })
 
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:5173', 'http://localhost:5174');
     res.header('Access-Control-Allow-Credentials', true);
     next();
 });
 
 app.use(cors({
     credentials: true,
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
 }));
 
 app.use(express.json());

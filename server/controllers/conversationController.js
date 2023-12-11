@@ -33,11 +33,16 @@ exports.addMessage = async (req, res) => {
 exports.getAllConversations = async (req, res) => {
     try {
         const conversations = await Conversation.find({
-            participant: { $in: [req.params.userId] }
+            'participant.user': { $in: [req.params.userId] }
         })
+        if (conversations.length === 0) {
+            res.status(204).json('No Content')
+            return
+        }
         res.status(200).json(conversations);
     } catch (err) {
-        res.status(500).json(err)
+        console.error(err);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
 }
 

@@ -19,7 +19,7 @@ const Login = () => {
       setAuth({ user: data.user, accessToken: data.accessToken })
       setUser('');
       setPwd('');
-      navigate('/protected');
+      navigate('/application');
     },
   })
 
@@ -40,17 +40,19 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <Stack w='100%' spacing='20px' display='flex' alignItems='center'>
             <CustomInput
-              placeholder='Email*'
+              placeholder='Username*'
               size='md'
               variant='outline'
               onChange={(e) => setUser(e.target.value)}
+              value={user}
             />
             <CustomInput
-              placeholder='Pasword*'
+              placeholder='Password*'
               size='md'
               type='password'
               variant='outline'
               onChange={(e) => setPwd(e.target.value)}
+              value={pwd}
             />
             <Stack display='flex' w='100%' justifyContent='space-between' flexDirection='row'>
               <Checkbox defaultChecked
