@@ -6,11 +6,13 @@ import { getConversations } from '../api/ChatApi'
 import { useState, useEffect } from 'react'
 import useAuth from '../hooks/useAuth'
 import { useQuery } from '@tanstack/react-query'
+import axios from '../api/axios'
 
 const Chat = () => {
     const { colorMode } = useColorMode()
     const { setSelectedConversation } = useChat()
     const { auth } = useAuth();
+    const [users, setUsers] = useState([])
     //const [Data, setData] = useState(null)
     const Conversations = useQuery({
         queryKey: ['conversations', { myId: auth.user._id }],
@@ -19,12 +21,16 @@ const Chat = () => {
 
     useEffect(() => {
         if (!auth || !Conversations.data || Conversations.data.length === 0) return
-        console.log(Conversations.data)
         const extractedIds = Conversations.data.map((conversation) =>
             conversation.participant.map((participant) => participant.user)
         );
-
         const idsArray = extractedIds.flat().filter((id) => id !== auth.user._id);
+        // if (idsArray.length !== 0) {
+        //     idsArray.map((userId) => {
+        //         const user = axios.get(`/user/getuser/${userId}`)
+        //         setUsers(prev => [...prev, user]);
+        //     })
+        // }
         console.log(idsArray)
     }, [Conversations])
 
@@ -83,7 +89,7 @@ const Chat = () => {
                 />
             </InputGroup>
             <OnlineUsers />
-            {Conversations.data ? (
+            {Conversations.data && users ? (
                 <Stack maxH='68vh' overflow='auto'>
                     {Conversations.data.map((user) => (
                         <Box p={1} w='100%' onClick={() => handleConversationClick(user.id)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{

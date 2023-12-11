@@ -10,5 +10,6 @@ router.get('/allusers', userController.getUsers);
 router.get('/refresh', refreshToken);
 router.get('/verifyjwt', verifyJWT);
 router.get('/action', verifyJWT, userController.action);
+router.get('/getuser/:userId', userController.getUser)
 
 module.exports = router;

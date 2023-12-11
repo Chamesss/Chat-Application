@@ -80,3 +80,12 @@ exports.getUsers = async (req, res) => {
     return res.status(500).json(err);
   }
 }
+
+exports.getUser = async (req,res) => {
+  try {
+    const user = await User.findById(req.params.userId, '_id firstName lastName avatar status')
+    return res.status(200).json(user)
+  } catch (error) {
+    console.log(error)
+  }
+}

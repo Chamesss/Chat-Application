@@ -1,4 +1,6 @@
 const Conversation = require('../models/conversation');
+const User = require('../models/user')
+const mongoose = require('mongoose');
 
 exports.newConversation = async (req, res) => {
     const newConversation = new Conversation({
@@ -35,13 +37,25 @@ exports.getAllConversations = async (req, res) => {
         const conversations = await Conversation.find({
             'participant.user': { $in: [req.params.userId] }
         })
-        if (conversations.length === 0) {
-            res.status(204).json('No Content')
-            return
+        if (!conversations?.length) {
+            return res.status(204).json('No Content');
         }
-        res.status(200).json(conversations);
+        const extractedIds = conversations.flatMap((conversation) =>
+            conversation.participant[0].user.toString() !== req.params.userId
+                ? [conversation.participant[0].user]
+                : [conversation.participant[1].user]
+        );
+        const users = await Promise.all(extractedIds.map(async (id) => {
+            return await User.findById(id, '_id firstName lastName avatar status');
+        }))
+        const combined = conversations.map((conversation, index) => {
+            return {
+                ...conversation.toObject(),
+                user: users[index],
+            };
+        })
+        res.status(200).json(combined);
     } catch (err) {
-        console.error(err);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 }
