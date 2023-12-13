@@ -11,7 +11,7 @@ import ElapsedTime from '../utils/ElapsedTime'
 
 const Chat = () => {
     const { colorMode } = useColorMode()
-    const { setSelectedConversation, setSelectedReceiverData } = useChat()
+    const { setSelectedReceiverData } = useChat()
     const { auth } = useAuth();
 
     const Conversations = useQuery({
@@ -22,7 +22,6 @@ const Chat = () => {
     console.log(Conversations.data)
 
     const handleConversationClick = (data) => {
-        setSelectedConversation(data._id)
         setSelectedReceiverData(data.user)
     }
 

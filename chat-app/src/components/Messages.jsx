@@ -1,7 +1,6 @@
 import DefaultMessage from './DefaultMessage'
 import { Divider, Stack, Text, useColorMode, Avatar } from '@chakra-ui/react'
 import { useChat } from '../Contexts/ChatProvider'
-import { useEffect, useState } from 'react'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
 import StartConversation from './StartConversation'
@@ -13,58 +12,24 @@ import ElapsedTime from '../utils/ElapsedTime'
 
 const Messages = () => {
   const { colorMode } = useColorMode()
-  const { selectedConversationId, selectedReceiverData } = useChat();
-  //const [receiver, setReceiver] = useState(null)
-  //const [conversationData, setConversationData] = useState(null);
+  const { selectedReceiverData } = useChat();
   const { auth } = useAuth();
+  const senderId = auth && auth.user ? auth.user._id : null;
+  const receiverId = selectedReceiverData ? selectedReceiverData._id : null
 
-  console.log('jsdnfkjdsnfjkdnsjkfndkj', selectedReceiverData)
-  let conversationData = null
-
-  if (selectedReceiverData) {
-    conversationData = useQuery({
-      queryKey: ['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }],
-      queryFn: getConversation,
-    });
-    console.log(conversationData)
-  }
-
-
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch('./dummy/dummy.json');
-  //       const data = await response.json();
-  //       const selectedConversation = data.find((conversation) =>
-  //         conversation.participant.every((participant) => participant.user === selectedConversationId || participant.user === myId)
-  //       );
-  //       setConversationData(selectedConversation);
-  //     } catch (error) {
-  //       console.error('Error fetching data:', error);
-  //     }
-  //   };
-  //   const fetchReceiver = async () => {
-  //     try {
-  //       const response = await fetch('./dummy/users.json')
-  //       const data = await response.json()
-  //       const receiver = data.find((user) => user.id === selectedConversationId)
-  //       setReceiver(receiver)
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   }
-  //   fetchData();
-  //   fetchReceiver();
-  // }, [selectedConversationId]);
+  const conversationData = useQuery({
+    queryKey: ['conversations', { sender_Id: senderId, receiver_Id: receiverId }],
+    queryFn: getConversation,
+    enabled: !!senderId && !!receiverId,
+  });
 
   return (
     <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='100%' boxShadow='md'>
-      {!selectedConversationId ? (
+      {!selectedReceiverData ? (
         <DefaultMessage />
       ) : (
         <Stack h='100%' justifyContent='space-between'>
-          {selectedReceiverData ? (
+          {selectedReceiverData && auth ? (
             <Stack>
               <ActionMenu data={selectedReceiverData} />
               <Divider />
@@ -111,7 +76,7 @@ const Messages = () => {
                     ))}
                   </>
                 ) : (
-                  <StartConversation />
+                  <StartConversation data={selectedReceiverData} />
                 )}
               </Stack>
             </Stack>
