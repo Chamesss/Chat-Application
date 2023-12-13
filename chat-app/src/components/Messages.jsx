@@ -8,6 +8,7 @@ import StartConversation from './StartConversation'
 import { useQuery } from '@tanstack/react-query'
 import { getConversation } from '../api/ChatApi'
 import useAuth from '../hooks/useAuth'
+import ElapsedTime from '../utils/ElapsedTime'
 
 
 const Messages = () => {
@@ -25,6 +26,7 @@ const Messages = () => {
       queryKey: ['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }],
       queryFn: getConversation,
     });
+    console.log(conversationData)
   }
 
 
@@ -71,9 +73,9 @@ const Messages = () => {
                   <>
                     {conversationData.data.messages.map((message, index) => (
                       <Stack key={index} display='flex' w='100%'>
-                        {message.to === auth.user._id ? (
+                        {message.from === auth.user._id ? (
                           <Stack direction='row' alignSelf='end' alignItems='center'>
-                            <span>{new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' })}</span>
+                            <ElapsedTime time={message.created_at} />
                             <Text
                               borderRadius={20}
                               px={4}
@@ -88,7 +90,7 @@ const Messages = () => {
                         ) : (
                           <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
                             {index === 0 || conversationData.data.messages[index - 1].to !== message.to ? (
-                              <Avatar size='sm' src='https://bit.ly/dan-abramov' />
+                              <Avatar size='sm' src={`./media/avatars/${selectedReceiverData.avatar}.jpg`} />
                             ) : <div style={{ marginLeft: '2rem' }} />}
                             <Stack
                               borderRadius={20}
@@ -102,7 +104,7 @@ const Messages = () => {
                                 {message.text}
                               </Text>
                             </Stack>
-                            <span>{new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' })}</span>
+                            <ElapsedTime time={message.created_at} />
                           </Stack>
                         )}
                       </Stack>

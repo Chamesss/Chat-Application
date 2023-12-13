@@ -53,7 +53,7 @@ const Chat = () => {
                                     '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
                                 }}>
                                     <Center direction='row' p={2}>
-                                        <Avatar size='lg' name={data.user.firstName}>
+                                        <Avatar size='lg' name={data.user.firstName} src={`./media/avatars/${data.user.avatar}.jpg`}>
                                             <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={data.user.status === 'Online' ? 'green.500' : 'grey'} />
                                         </Avatar>
                                         <Stack ml='10px' textAlign='start'>

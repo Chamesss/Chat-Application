@@ -1,20 +1,26 @@
 import React from 'react'
 import { Avatar, Stack, AvatarBadge, useColorMode } from '@chakra-ui/react'
+import { useQuery } from '@tanstack/react-query'
+import { getUsers } from '../api/UserApi'
+import { useChat } from '../Contexts/ChatProvider'
 
 const OnlineUsers = () => {
   const { colorMode } = useColorMode()
-  const Data = [
-    { id: 1, name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
-    { id: 2, name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
-    { id: 3, name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
-    { id: 4, name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
-    { id: 5, name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
-    { id: 6, name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
-  ]
+  const { setSelectedReceiverData } = useChat()
+  const Users = useQuery({
+    queryKey: ['getUsers'],
+    queryFn: getUsers
+  })
+  console.log(Users)
+
+  const handleConversationClick = (user) => {
+    setSelectedReceiverData(user)
+  }
+
   return (
     <Stack w='100%' direction='row' overflow='auto' spacing='0.5rem' p={2}>
-      {Data.map((user, index) => (
-        <Avatar size='lg' key={index} name={user.name} src={user.src} sx={{
+      {Users.data && Users.data.map((user, index) => (
+        <Avatar size='lg' key={index} name={user.firstName} src={`./media/avatars/${user.avatar}.jpg`} sx={{
           borderRadius: '5px',
           border: 'none',
           p: '4px',
@@ -23,8 +29,10 @@ const OnlineUsers = () => {
             cursor: 'pointer',
             backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959'
           }
-        }}>
-          <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={user.stats} />
+        }}
+          onClick={() => handleConversationClick(user)}
+        >
+          <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={user.status === 'Online' ? 'green.500' : 'grey'} />
         </Avatar>
       ))}
     </Stack>
