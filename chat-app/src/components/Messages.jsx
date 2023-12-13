@@ -5,40 +5,56 @@ import { useEffect, useState } from 'react'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
 import StartConversation from './StartConversation'
+import { useQuery } from '@tanstack/react-query'
+import { getConversation } from '../api/ChatApi'
+import useAuth from '../hooks/useAuth'
+
 
 const Messages = () => {
   const { colorMode } = useColorMode()
-  const { selectedConversationId } = useChat();
-  const [receiver, setReceiver] = useState(null)
-  const [conversationData, setConversationData] = useState(null);
-  const myId = 5000;
+  const { selectedConversationId, selectedReceiverData } = useChat();
+  //const [receiver, setReceiver] = useState(null)
+  //const [conversationData, setConversationData] = useState(null);
+  const { auth } = useAuth();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('./dummy/dummy.json');
-        const data = await response.json();
-        const selectedConversation = data.find((conversation) =>
-          conversation.participant.every((participant) => participant.user === selectedConversationId || participant.user === myId)
-        );
-        setConversationData(selectedConversation);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    const fetchReceiver = async () => {
-      try {
-        const response = await fetch('./dummy/users.json')
-        const data = await response.json()
-        const receiver = data.find((user) => user.id === selectedConversationId)
-        setReceiver(receiver)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-    fetchData();
-    fetchReceiver();
-  }, [selectedConversationId]);
+  console.log('jsdnfkjdsnfjkdnsjkfndkj', selectedReceiverData)
+  let conversationData = null
+
+  if (selectedReceiverData) {
+    conversationData = useQuery({
+      queryKey: ['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }],
+      queryFn: getConversation,
+    });
+  }
+
+
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const response = await fetch('./dummy/dummy.json');
+  //       const data = await response.json();
+  //       const selectedConversation = data.find((conversation) =>
+  //         conversation.participant.every((participant) => participant.user === selectedConversationId || participant.user === myId)
+  //       );
+  //       setConversationData(selectedConversation);
+  //     } catch (error) {
+  //       console.error('Error fetching data:', error);
+  //     }
+  //   };
+  //   const fetchReceiver = async () => {
+  //     try {
+  //       const response = await fetch('./dummy/users.json')
+  //       const data = await response.json()
+  //       const receiver = data.find((user) => user.id === selectedConversationId)
+  //       setReceiver(receiver)
+  //     } catch (error) {
+  //       console.log(error)
+  //     }
+  //   }
+  //   fetchData();
+  //   fetchReceiver();
+  // }, [selectedConversationId]);
 
   return (
     <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='100%' boxShadow='md'>
@@ -46,16 +62,16 @@ const Messages = () => {
         <DefaultMessage />
       ) : (
         <Stack h='100%' justifyContent='space-between'>
-          {receiver ? (
+          {selectedReceiverData ? (
             <Stack>
-              <ActionMenu data={receiver} />
+              <ActionMenu data={selectedReceiverData} />
               <Divider />
               <Stack>
-                {conversationData ? (
+                {conversationData.data ? (
                   <>
-                    {conversationData.messages.map((message, index) => (
+                    {conversationData.data.messages.map((message, index) => (
                       <Stack key={index} display='flex' w='100%'>
-                        {message.to === myId ? (
+                        {message.to === auth.user._id ? (
                           <Stack direction='row' alignSelf='end' alignItems='center'>
                             <span>{new Date(message.created_at).toLocaleTimeString([], { hour: 'numeric', minute: 'numeric' })}</span>
                             <Text
@@ -71,7 +87,7 @@ const Messages = () => {
                           </Stack>
                         ) : (
                           <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
-                            {index === 0 || conversationData.messages[index - 1].to !== message.to ? (
+                            {index === 0 || conversationData.data.messages[index - 1].to !== message.to ? (
                               <Avatar size='sm' src='https://bit.ly/dan-abramov' />
                             ) : <div style={{ marginLeft: '2rem' }} />}
                             <Stack

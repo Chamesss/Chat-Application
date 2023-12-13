@@ -34,9 +34,22 @@ exports.addMessage = async (req, res) => {
 
 exports.getAllConversations = async (req, res) => {
     try {
-        const conversations = await Conversation.find({
-            'participant.user': { $in: [req.params.userId] }
-        })
+        const userId = new mongoose.Types.ObjectId(req.params.userId)
+        const conversations = await Conversation.aggregate([
+            {
+                $match: {
+                    'participant.user': { $in: [userId] }
+                }
+            },
+            {
+                $project: {
+                    participant: '$participant',
+                    messages: {
+                        $slice: ['$messages', -10]
+                    }
+                }
+            }
+        ]);
         if (!conversations?.length) {
             return res.status(204).json('No Content');
         }
@@ -50,13 +63,14 @@ exports.getAllConversations = async (req, res) => {
         }))
         const combined = conversations.map((conversation, index) => {
             return {
-                ...conversation.toObject(),
+                ...conversation,
                 user: users[index],
             };
         })
         res.status(200).json(combined);
     } catch (err) {
-        return res.status(500).json({ error: 'Internal Server Error' });
+        console.log(err)
+        return res.status(500).json(err);
     }
 }
 

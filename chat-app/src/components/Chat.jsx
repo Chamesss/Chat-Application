@@ -7,69 +7,24 @@ import { useState, useEffect } from 'react'
 import useAuth from '../hooks/useAuth'
 import { useQuery } from '@tanstack/react-query'
 import axios from '../api/axios'
+import ElapsedTime from '../utils/ElapsedTime'
 
 const Chat = () => {
     const { colorMode } = useColorMode()
-    const { setSelectedConversation } = useChat()
+    const { setSelectedConversation, setSelectedReceiverData } = useChat()
     const { auth } = useAuth();
-    const [users, setUsers] = useState([])
-    //const [Data, setData] = useState(null)
+
     const Conversations = useQuery({
         queryKey: ['conversations', { myId: auth.user._id }],
         queryFn: getConversations,
     });
 
-    useEffect(() => {
-        if (!auth || !Conversations.data || Conversations.data.length === 0) return
-        const extractedIds = Conversations.data.map((conversation) =>
-            conversation.participant.map((participant) => participant.user)
-        );
-        const idsArray = extractedIds.flat().filter((id) => id !== auth.user._id);
-        // if (idsArray.length !== 0) {
-        //     idsArray.map((userId) => {
-        //         const user = axios.get(`/user/getuser/${userId}`)
-        //         setUsers(prev => [...prev, user]);
-        //     })
-        // }
-        console.log(idsArray)
-    }, [Conversations])
+    console.log(Conversations.data)
 
-
-    const handleConversationClick = (id) => {
-        setSelectedConversation(id)
+    const handleConversationClick = (data) => {
+        setSelectedConversation(data._id)
+        setSelectedReceiverData(data.user)
     }
-    // const Data = [
-    //     { id: 1, name: 'Dan Abrahmov', src: 'https://bit.ly/dan-abramov', stats: 'green.500' },
-    //     { id: 2, name: 'Kent Dodds', src: 'https://bit.ly/kent-c-dodds', stats: 'grey' },
-    //     { id: 3, name: 'Ryan Florence', src: 'https://bit.ly/ryan-florence', stats: 'grey' },
-    //     { id: 4, name: 'Prosper Otemuyiwa', src: 'https://bit.ly/prosper-baba', stats: 'grey' },
-    //     { id: 5, name: 'Christian Nwamba', src: 'https://bit.ly/code-beast', stats: 'grey' },
-    //     { id: 6, name: 'Segun Adebayo', src: 'https://bit.ly/sage-adebayo', stats: 'grey' }
-    // ]
-    // const myId = 5000
-
-    // const getConversations = async () => {
-    //     try {
-    //         const response = await fetch('./dummy/dummy.json');
-    //         const data = await response.json()
-    //         const conversations = data.find((conversation) =>
-    //             conversation.participant.every((participant) => participant.user === myId)
-    //         );
-    //         console.log(conversations)
-    //         const extractedIds = conversations.map((conversation) =>
-    //             conversation.participant.map((participant) => participant.user)
-    //         );
-
-    //         const idsArray = extractedIds.flat().filter((id) => id !== myId);
-    //         console.log('idArrays == ', idsArray)
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
-
-    // getConversations()
-
-
 
     return (
         <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} boxShadow='md'>
@@ -89,29 +44,41 @@ const Chat = () => {
                 />
             </InputGroup>
             <OnlineUsers />
-            {Conversations.data && users ? (
-                <Stack maxH='68vh' overflow='auto'>
-                    {Conversations.data.map((user) => (
-                        <Box p={1} w='100%' onClick={() => handleConversationClick(user.id)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
-                            '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
-                        }}>
-                            <Center direction='row' p={2}>
-                                <Avatar size='lg' name={user.name} src={user.src}>
-                                    <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={user.stats} />
-                                </Avatar>
-                                <Stack ml='10px' textAlign='start'>
-                                    <Text fontWeight='700' fontSize='md'>{user.name}</Text>
-                                    <Text fontWeight='700' color='#6F7276' fontSize='sm'>This is last message</Text>
-                                </Stack>
-                            </Center>
-                            <Stack display='flex' alignItems='center' p={2}>
-                                <Text color='#6F7276' fontSize='xs'>20:08</Text>
-                                <Text display='flex' justifyContent='center' alignItems='center' color='white' borderRadius='50px' bgColor='#FA474F' p={0} w='24px' h='24px'>2</Text>
-                            </Stack>
-                        </Box>
+            {Conversations.data && Conversations.data.some((data) => data.messages.length > 0) ? (
+                <Stack h='68vh' overflow='auto'>
+                    {Conversations.data.map((data) => (
+                        <>
+                            {data.messages.length > 0 && (
+                                <Box p={1} w='100%' onClick={() => handleConversationClick(data)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
+                                    '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
+                                }}>
+                                    <Center direction='row' p={2}>
+                                        <Avatar size='lg' name={data.user.firstName}>
+                                            <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={data.user.status === 'Online' ? 'green.500' : 'grey'} />
+                                        </Avatar>
+                                        <Stack ml='10px' textAlign='start'>
+                                            <Text fontWeight='700' fontSize='md'>{data.user.firstName + ' ' + data.user.lastName}</Text>
+                                            {data.messages[data.messages.length - 1].from === auth.user._id
+                                                ? <Text fontWeight='500' color='#6F7276' fontSize='sm'>You: {data.messages[data.messages.length - 1].text}</Text>
+                                                : <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.messages[data.messages.length - 1].text}</Text>}
+                                        </Stack>
+                                    </Center>
+                                    <Stack display='flex' alignItems='center' p={2}>
+                                        <Text color='#6F7276' fontSize='xs'><ElapsedTime time={data.messages[data.messages.length - 1].created_at} /></Text>
+                                        {data.messages[data.messages.length - 1].from !== auth.user._id &&
+                                            <Text display='flex' justifyContent='center' alignItems='center' color='white' borderRadius='50px' bgColor='#FA474F' p={0} w='20px' h='20px'></Text>}
+                                    </Stack>
+                                </Box>
+                            )}
+                        </>
                     ))}
-                </Stack>) : (<>aasba</>)}
-        </Stack>
+                </Stack>
+            ) : (
+                <Center h='68vh'>
+                    <Text>No conversations yet.</Text>
+                </Center>)
+            }
+        </Stack >
     )
 }
 
