@@ -19,8 +19,6 @@ const Chat = () => {
         queryFn: getConversations,
     });
 
-    console.log(Conversations.data)
-
     const handleConversationClick = (data) => {
         setSelectedReceiverData(data.user)
     }

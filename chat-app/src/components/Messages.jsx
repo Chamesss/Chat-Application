@@ -1,5 +1,5 @@
 import DefaultMessage from './DefaultMessage'
-import { Divider, Stack, Text, useColorMode, Avatar } from '@chakra-ui/react'
+import { Divider, Stack, Text, useColorMode, Avatar, Skeleton, SkeletonCircle, Center } from '@chakra-ui/react'
 import { useChat } from '../Contexts/ChatProvider'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
@@ -29,61 +29,82 @@ const Messages = () => {
         <DefaultMessage />
       ) : (
         <Stack h='100%' justifyContent='space-between'>
-          {selectedReceiverData && auth ? (
+          {selectedReceiverData && auth && (
             <Stack>
               <ActionMenu data={selectedReceiverData} />
               <Divider />
               <Stack>
-                {conversationData.data ? (
+                {conversationData.isPending && (
                   <>
-                    {conversationData.data.messages.map((message, index) => (
-                      <Stack key={index} display='flex' w='100%'>
-                        {message.from === auth.user._id ? (
-                          <Stack direction='row' alignSelf='end' alignItems='center'>
-                            <ElapsedTime time={message.created_at} />
-                            <Text
-                              borderRadius={20}
-                              px={4}
-                              py={2}
-                              w='fit-content'
-                              color='white'
-                              bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
-                            >
-                              {message.text}
-                            </Text>
-                          </Stack>
-                        ) : (
-                          <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
-                            {index === 0 || conversationData.data.messages[index - 1].to !== message.to ? (
-                              <Avatar size='sm' src={`./media/avatars/${selectedReceiverData.avatar}.jpg`} />
-                            ) : <div style={{ marginLeft: '2rem' }} />}
-                            <Stack
-                              borderRadius={20}
-                              py={2}
-                              px={4}
-                              bgColor={colorMode === 'light' ? '#EAE8ED' : '#252E48'}
-                              display='flex'
-                              justifyContent='center'
-                            >
-                              <Text>
-                                {message.text}
-                              </Text>
-                            </Stack>
-                            <ElapsedTime time={message.created_at} />
-                          </Stack>
-                        )}
+                    {Array.from({ length: 2 }, (_, i) => (
+                      <Stack key={i} direction='column'>
+                        <Stack w='100%' h='auto' direction='row' alignItems='center'>
+                          <SkeletonCircle size='50px' />
+                          <Skeleton w='50%' h='25px' />
+                        </Stack>
+                        <Stack w='100%' alignItems='end'>
+                          <Skeleton w='50%' h='25px' />
+                        </Stack>
                       </Stack>
                     ))}
                   </>
-                ) : (
-                  <StartConversation data={selectedReceiverData} />
+                )}
+                {conversationData.isError && (
+                  <Center>
+                    <Text>Something went wrong.</Text>
+                  </Center>
+                )}
+                {conversationData.isSuccess && (
+                  <>
+                    {conversationData.data ? (
+                      <>
+                        {conversationData.data.messages.map((message, index) => (
+                          <Stack key={index} display='flex' w='100%'>
+                            {message.from === auth.user._id ? (
+                              <Stack direction='row' alignSelf='end' alignItems='center'>
+                                <ElapsedTime time={message.created_at} />
+                                <Text
+                                  borderRadius={20}
+                                  px={4}
+                                  py={2}
+                                  w='fit-content'
+                                  color='white'
+                                  bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
+                                >
+                                  {message.text}
+                                </Text>
+                              </Stack>
+                            ) : (
+                              <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
+                                {index === 0 || conversationData.data.messages[index - 1].to !== message.to ? (
+                                  <Avatar size='sm' src={`./media/avatars/${selectedReceiverData.avatar}.jpg`} />
+                                ) : <div style={{ marginLeft: '2rem' }} />}
+                                <Stack
+                                  borderRadius={20}
+                                  py={2}
+                                  px={4}
+                                  bgColor={colorMode === 'light' ? '#EAE8ED' : '#252E48'}
+                                  display='flex'
+                                  justifyContent='center'
+                                >
+                                  <Text>
+                                    {message.text}
+                                  </Text>
+                                </Stack>
+                                <ElapsedTime time={message.created_at} />
+                              </Stack>
+                            )}
+                          </Stack>
+                        ))}
+                      </>
+                    ) : (
+                      <StartConversation data={selectedReceiverData} />
+                    )}
+                  </>
                 )}
               </Stack>
             </Stack>
-          ) : (
-            <div>loading</div>
           )}
-
           <Stack display='flex' justifySelf='flex-end'>
             <MessageInput />
           </Stack>
