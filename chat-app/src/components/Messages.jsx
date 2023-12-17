@@ -4,16 +4,21 @@ import { useChat } from '../Contexts/ChatProvider'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
 import StartConversation from './StartConversation'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getConversation } from '../api/ChatApi'
 import useAuth from '../hooks/useAuth'
 import ElapsedTime from '../utils/ElapsedTime'
+import useSocket from '../hooks/useSocket'
+import { useEffect, useState } from 'react'
 
 
 const Messages = () => {
   const { colorMode } = useColorMode()
   const { selectedReceiverData } = useChat();
   const { auth } = useAuth();
+  const { socket } = useSocket();
+  const [typing, setTyping] = useState('')
+  const queryClient = useQueryClient();
   const senderId = auth && auth.user ? auth.user._id : null;
   const receiverId = selectedReceiverData ? selectedReceiverData._id : null
 
@@ -23,6 +28,28 @@ const Messages = () => {
     enabled: !!senderId && !!receiverId,
   });
 
+  useEffect(() => {
+    if (!auth || !socket || !selectedReceiverData) return
+    socket.on("typing", (senderName) => {
+      setTyping(`${senderName} is typing...`)
+      clearTimeout(activityTimer)
+      activityTimer = setTimeout(() => {
+        setTyping('');
+      }, 3000)
+    })
+
+    //NewMessage event
+    socket.on("getMessage", (data) => {
+      queryClient.setQueryData(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData }], (prevData) => {
+        return {
+          ...prevData,
+          messages: [...prevData.messages, data],
+        };
+      });
+      setTyping('')
+    });
+  }, [auth, socket, selectedReceiverData])
+
   return (
     <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='100%' boxShadow='md'>
       {!selectedReceiverData ? (
@@ -30,10 +57,10 @@ const Messages = () => {
       ) : (
         <Stack h='100%' justifyContent='space-between'>
           {selectedReceiverData && auth && (
-            <Stack>
+            <Stack h='100%'>
               <ActionMenu data={selectedReceiverData} />
               <Divider />
-              <Stack>
+              <Stack h='100%'>
                 {conversationData.isPending && (
                   <>
                     {Array.from({ length: 2 }, (_, i) => (
@@ -55,9 +82,9 @@ const Messages = () => {
                   </Center>
                 )}
                 {conversationData.isSuccess && (
-                  <>
+                  <Stack h='100%'>
                     {conversationData.data ? (
-                      <>
+                      <Stack position='relative' h='100%' overflow='hidden'>
                         {conversationData.data.messages.map((message, index) => (
                           <Stack key={index} display='flex' w='100%'>
                             {message.from === auth.user._id ? (
@@ -96,11 +123,14 @@ const Messages = () => {
                             )}
                           </Stack>
                         ))}
-                      </>
+                        <Stack position='absolute' bottom='2%' left='2%'>
+                          <Text as='i' textAlign='start'>{typing}</Text>
+                        </Stack>
+                      </Stack>
                     ) : (
                       <StartConversation data={selectedReceiverData} />
                     )}
-                  </>
+                  </Stack>
                 )}
               </Stack>
             </Stack>
