@@ -5,7 +5,7 @@ import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
 import StartConversation from './StartConversation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getConversation } from '../api/ChatApi'
+import { getConversation, addConversation } from '../api/ChatApi'
 import useAuth from '../hooks/useAuth'
 import ElapsedTime from '../utils/ElapsedTime'
 import useSocket from '../hooks/useSocket'
@@ -18,6 +18,7 @@ const Messages = () => {
   const { auth } = useAuth();
   const { socket } = useSocket();
   const [typing, setTyping] = useState('')
+  const [emitted, setEmitted] = useState(false)
   const queryClient = useQueryClient();
   const senderId = auth && auth.user ? auth.user._id : null;
   const receiverId = selectedReceiverData ? selectedReceiverData._id : null
@@ -26,11 +27,28 @@ const Messages = () => {
     queryKey: ['conversations', { sender_Id: senderId, receiver_Id: receiverId }],
     queryFn: getConversation,
     enabled: !!senderId && !!receiverId,
+    select: (data) => {
+      if (!data) {
+        addConversation({ senderId: auth.user._id, receiver_id: receiverId })
+        refetch()
+      }
+      return data
+    }
   });
 
   useEffect(() => {
+    if (conversationData.data && conversationData.isSuccess && !emitted) {
+      socket.emit("addSocket", conversationData.data._id, senderId);
+      console.log('socket added !! ')
+      setEmitted(true);
+    }
+  }, [conversationData, emitted, senderId])
+
+  useEffect(() => {
     if (!auth || !socket || !selectedReceiverData) return
+    let activityTimer
     socket.on("typing", (senderName) => {
+      console.log('aaaa')
       setTyping(`${senderName} is typing...`)
       clearTimeout(activityTimer)
       activityTimer = setTimeout(() => {
@@ -40,7 +58,7 @@ const Messages = () => {
 
     //NewMessage event
     socket.on("getMessage", (data) => {
-      queryClient.setQueryData(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData }], (prevData) => {
+      queryClient.setQueryData(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }], (prevData) => {
         return {
           ...prevData,
           messages: [...prevData.messages, data],
@@ -83,7 +101,7 @@ const Messages = () => {
                 )}
                 {conversationData.isSuccess && (
                   <Stack h='100%'>
-                    {conversationData.data ? (
+                    {conversationData.data.messages.length > 0 ? (
                       <Stack position='relative' h='100%' overflow='hidden'>
                         {conversationData.data.messages.map((message, index) => (
                           <Stack key={index} display='flex' w='100%'>
@@ -136,7 +154,7 @@ const Messages = () => {
             </Stack>
           )}
           <Stack display='flex' justifySelf='flex-end'>
-            <MessageInput />
+            <MessageInput data={conversationData.data} />
           </Stack>
         </Stack>
       )}

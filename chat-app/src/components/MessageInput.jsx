@@ -11,13 +11,21 @@ import CustomInput from './Input';
 import EmojiPicker from 'emoji-picker-react';
 import { IoMdPhotos } from "react-icons/io";
 import { GrAttachment } from "react-icons/gr";
+import useSocket from '../hooks/useSocket';
+import { useChat } from '../Contexts/ChatProvider';
+import useAuth from '../hooks/useAuth';
 
-const MessageInput = () => {
+const MessageInput = (data) => {
     const { colorMode } = useColorMode()
+    const { socket } = useSocket()
+    const { selectedReceiverData } = useChat()
+    const { auth } = useAuth()
     const [message, setMessage] = useState(null)
+
     const handleInput = (e) => {
         e.preventDefault()
         setMessage(e.target.value)
+        socket.emit("typing", data.data._id, auth.user.firstName, selectedReceiverData._id)
     }
     const handleEmojiClick = (emoji) => {
         setMessage((prevMessage) => prevMessage + emoji.emoji);
@@ -29,6 +37,16 @@ const MessageInput = () => {
     const handleAttachmentUpload = () => {
         document.getElementById('attachmentUploadInput').click();
     };
+
+    const handleSubmit = async () => {
+        setMessage('')
+        socket.emit("sendMessage",
+            auth.user._id,
+            selectedReceiverData._id,
+            data.data._id,
+            message,
+        );
+    }
 
     return (
         <Center display='flex' direction='row'>
@@ -71,7 +89,7 @@ const MessageInput = () => {
                 </InputRightElement>
             </InputGroup>
 
-            <label className={`${colorMode === 'light' ? 'icon-light' : 'icon-dark'} icon-2 margin-left`} style={{ cursor: 'pointer', color: colorMode === 'light' ? '#2A8BF2' : '#0E6DD8' }}>
+            <label onClick={handleSubmit} className={`${colorMode === 'light' ? 'icon-light' : 'icon-dark'} icon-2 margin-left`} style={{ cursor: 'pointer', color: colorMode === 'light' ? '#2A8BF2' : '#0E6DD8' }}>
                 <BsSendFill fontSize='1.8rem' className={`${message ? 'rotate' : 'init'}`} style={{ marginRight: '5px' }} />
             </label>
 

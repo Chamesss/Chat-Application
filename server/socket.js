@@ -8,7 +8,7 @@ let conversationIdGlobal;
 const initializeSocket = (server) => {
   const io = socketIo(server, {
     cors: {
-      origin: 'http://localhost:3000',
+      origin: 'http://localhost:5173',
       credentials: true,
     },
   });
@@ -33,6 +33,7 @@ const initializeSocket = (server) => {
     })
 
     socket.on("addSocket", async (conversation_id, user_id) => {
+      console.log(conversation_id, user_id)
       try {
         const chat = await Conversation.findById(conversation_id)
         const userIndex = chat.participant.findIndex((id) => (id.user.toString() === user_id))
