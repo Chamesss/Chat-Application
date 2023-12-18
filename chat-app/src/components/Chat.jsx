@@ -41,7 +41,9 @@ const Chat = () => {
                     }}
                 />
             </InputGroup>
-            <OnlineUsers />
+            <Stack>
+                <OnlineUsers />
+            </Stack>
             {Conversations.data && Conversations.data.some((data) => data.messages.length > 0) ? (
                 <Stack overflow='auto'>
                     {Conversations.data.map((data, index) => (
@@ -72,7 +74,7 @@ const Chat = () => {
                     ))}
                 </Stack>
             ) : (
-                <Center>
+                <Center h='100%'>
                     <Text>No conversations yet.</Text>
                 </Center>)
             }

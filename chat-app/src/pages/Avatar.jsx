@@ -13,8 +13,11 @@ const AvatarSelection = () => {
         mutationFn: selectAvatar,
         onSuccess: (data) => {
             setAuth((prevData) => ({
-                user: { ...prevData.user, avatar: data.avatar },
                 ...prevData,
+                user: {
+                    ...prevData.user,
+                    avatar: data.avatar,
+                },
             }));
             navigate('/application');
         },

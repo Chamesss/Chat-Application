@@ -3,7 +3,7 @@ import Register from './pages/Register';
 import Application from './pages/Application';
 import RequireAuth from './utils/RequireAuth'
 import RequireNoAuth from './utils/RequireNoAuth'
-import Layout from './Layouts/Layout' 
+import Layout from './Layouts/Layout'
 import {
   RouterProvider,
   Route,
@@ -18,17 +18,19 @@ import AvatarSelection from './pages/Avatar';
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<Layout />}>
+      <Route element={<Layout />}>
         {/* public routes but not accessible for private */}
-        <Route path="/" element={<RequireNoAuth />}>
+        <Route element={<RequireNoAuth />}>
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="*" element={<Navigate to="/login" />} />
         </Route>
         {/* private routes */}
-        <Route path="/" element={<RequireAuth />}>
-          <Route path='avatar' element={<AvatarSelection />} />
+        <Route element={<RequireAuth />}>
+          <Route path="" element={<Navigate to="/application" />} />
           <Route path="application" element={<Application />} />
+          <Route path='avatar' element={<AvatarSelection />} />
+          <Route path="*" element={<Navigate to="/application" />} />
         </Route>
       </Route>
     </Route>

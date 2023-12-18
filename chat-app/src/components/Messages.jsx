@@ -38,10 +38,9 @@ const Messages = () => {
   });
 
   useEffect(() => {
-    if (conversationData.data && conversationData.isSuccess && !emitted) {
+    if (conversationData.data && conversationData.isSuccess) {
       socket.emit("addSocket", conversationData.data._id, senderId);
       socket.emit("addConversation", conversationData.data._id);
-      setEmitted(true);
     }
   }, [conversationData, emitted, senderId])
 

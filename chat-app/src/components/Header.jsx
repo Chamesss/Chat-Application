@@ -9,7 +9,7 @@ import {
     DrawerCloseButton,
 } from '@chakra-ui/react'
 import useAuth from '../hooks/useAuth'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { logOut } from '../api/UserApi'
 import { HamburgerIcon } from '@chakra-ui/icons'
 
@@ -20,7 +20,7 @@ const Header = () => {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const btnRef = useRef()
     const navigate = useNavigate()
-    const location = useLocation()
+    const location = useLocation() 
 
     useEffect(() => {
         colorMode === 'dark' ? setLightMode(false) : setLightMode(true)
@@ -34,12 +34,12 @@ const Header = () => {
         }, 110)
     };
 
-    const handleLogout = () => {
-        const response = logOut()
+    const handleLogout = async () => {
+        const response = await logOut()
         onClose()
         if (response.success === true) {
             setAuth({ user: null, accessToken: null })
-            navigate('/login', { state: { from: location }, replace: true })
+            navigate('/login', { state: { from: location }, replace: true });
         }
     }
 

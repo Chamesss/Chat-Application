@@ -19,7 +19,7 @@ const Register = () => {
     mutationFn: registerUser,
     onSuccess: (data) => {
       setAuth({ user: data.user, accessToken: data.accessToken })
-      navigate('/application');
+      navigate('/avatar');
     },
     // onMutate: async ({ firstName, lastName, email, pwd }) => {
     //   if (pwd !== matchPwd) {

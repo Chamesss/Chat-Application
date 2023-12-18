@@ -19,7 +19,7 @@ const Login = () => {
       setAuth({ user: data.user, accessToken: data.accessToken })
       setUser('');
       setPwd('');
-      navigate('/application');
+      data.user.avatar === ("0" || 0) ? navigate('/avatar') : navigate('/application');
     },
   })
 
