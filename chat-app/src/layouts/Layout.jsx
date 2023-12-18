@@ -30,7 +30,6 @@ const Layout = () => {
           });
           setAuth({ user: response.data, accessToken: newAccessToken })
           if (response.data.avatar === "0") {
-            console.log('aaaa')
             navigate('/avatar')
           }
         }

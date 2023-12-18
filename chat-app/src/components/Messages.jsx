@@ -49,7 +49,7 @@ const Messages = () => {
     if (!auth || !socket || !selectedReceiverData) return
 
     if (conversationData.isSuccess) {
-      conversationData.data?.messages?.length > 0 && setMessages(conversationData.data.messages)
+      conversationData.data?.messages && setMessages(conversationData.data.messages)
     }
 
     //Typing event

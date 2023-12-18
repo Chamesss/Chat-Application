@@ -16,7 +16,6 @@ const AvatarSelection = () => {
                 user: { ...prevData.user, avatar: data.avatar },
                 ...prevData,
             }));
-            console.log(data)
             navigate('/application');
         },
     })

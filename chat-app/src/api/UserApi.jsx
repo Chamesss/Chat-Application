@@ -30,7 +30,6 @@ const login = async (data) => {
 }
 
 const selectAvatar = async (data) => {
-    console.log(data)
     const userId = data.userId
     try {
         const response = await axios.post(`/user/selectavatar/${userId}`,
