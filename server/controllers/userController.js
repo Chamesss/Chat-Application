@@ -81,11 +81,25 @@ exports.getUsers = async (req, res) => {
   }
 }
 
-exports.getUser = async (req,res) => {
+exports.selectAvatar = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { avatar: req.body.avatar },
+      { new: true }
+    )
+    if (user) return res.status(200).json(user)
+    return res.status(404).json('User not found')
+  } catch (error) {
+    return res.status(500).json(error)
+  }
+}
+
+exports.getUser = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId, '_id firstName lastName avatar status')
     return res.status(200).json(user)
   } catch (error) {
-    console.log(error)
+    return res.status(500).json(error)
   }
 }

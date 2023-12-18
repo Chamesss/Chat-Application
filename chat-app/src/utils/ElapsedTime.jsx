@@ -6,7 +6,7 @@ const TimeAgoDisplay = ({ time }) => {
 
         const timeAgo = () => {
             const currentDate = new Date();
-            const previousDate = new Date(time);
+            const previousDate = new Date(time || new Date());
             const timeDifference = currentDate - previousDate;
 
             const seconds = Math.floor(timeDifference / 1000);

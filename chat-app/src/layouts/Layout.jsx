@@ -1,6 +1,6 @@
 import { Stack, useColorMode } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react";
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import useAuth from "../hooks/useAuth";
@@ -13,6 +13,7 @@ const Layout = () => {
   const { auth } = useAuth();
   const refreshAccessToken = useRefreshToken();
   const { setAuth } = useAuth();
+  const navigate = useNavigate()
   const [terminated, setTerminated] = useState(false);
 
   /* eslint-disable react-hooks/exhaustive-deps */
@@ -28,6 +29,10 @@ const Layout = () => {
             }
           });
           setAuth({ user: response.data, accessToken: newAccessToken })
+          if (response.data.avatar === "0") {
+            console.log('aaaa')
+            navigate('/avatar')
+          }
         }
       } catch (err) {
         setAuth({ user: null, accessToken: null })

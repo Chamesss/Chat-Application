@@ -5,6 +5,7 @@ const { verifyJWT, refreshToken } = require('../middlewares/verifyJWT');
 
 router.post('/createuser', userController.createUser);
 router.post('/login', userController.login);
+router.post('/selectavatar/:userId', userController.selectAvatar)
 router.get('/logout', userController.logout);
 router.get('/allusers', userController.getUsers);
 router.get('/refresh', refreshToken);

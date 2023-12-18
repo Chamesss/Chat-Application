@@ -1,4 +1,4 @@
-import axios from './axios'
+import axios, { axiosPrivate } from './axios'
 
 const registerUser = async (data) => {
     try {
@@ -29,6 +29,20 @@ const login = async (data) => {
     }
 }
 
+const selectAvatar = async (data) => {
+    console.log(data)
+    const userId = data.userId
+    try {
+        const response = await axios.post(`/user/selectavatar/${userId}`,
+            {
+                avatar: data.avatar
+            })
+        return response.data
+    } catch (error) {
+        throw new Error(error.response.data)
+    }
+}
+
 const getUsers = async () => {
     try {
         const response = await axios.get('/user/allusers');
@@ -38,4 +52,13 @@ const getUsers = async () => {
     }
 }
 
-export { registerUser, login, getUsers }
+const logOut = async () => {
+    try {
+        const response = await axiosPrivate.get('/user/logout');
+        return response.data
+    } catch (error) {
+        throw new Error(error.response.data)
+    }
+}
+
+export { registerUser, login, getUsers, selectAvatar, logOut }

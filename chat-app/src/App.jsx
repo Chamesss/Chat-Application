@@ -3,7 +3,8 @@ import Register from './pages/Register';
 import Application from './pages/Application';
 import RequireAuth from './utils/RequireAuth'
 import RequireNoAuth from './utils/RequireNoAuth'
-import Layout from './Layouts/Layout'; import {
+import Layout from './Layouts/Layout' 
+import {
   RouterProvider,
   Route,
   createBrowserRouter,
@@ -11,6 +12,7 @@ import Layout from './Layouts/Layout'; import {
   Navigate
 } from 'react-router-dom'
 import { useState, useEffect } from 'react';
+import AvatarSelection from './pages/Avatar';
 
 
 const router = createBrowserRouter(
@@ -25,6 +27,7 @@ const router = createBrowserRouter(
         </Route>
         {/* private routes */}
         <Route path="/" element={<RequireAuth />}>
+          <Route path='avatar' element={<AvatarSelection />} />
           <Route path="application" element={<Application />} />
         </Route>
       </Route>

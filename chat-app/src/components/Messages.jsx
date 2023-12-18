@@ -19,6 +19,7 @@ const Messages = () => {
   const { socket } = useSocket();
   const [typing, setTyping] = useState('')
   const [emitted, setEmitted] = useState(false)
+  const [messages, setMessages] = useState([])
   const queryClient = useQueryClient();
   const senderId = auth && auth.user ? auth.user._id : null;
   const receiverId = selectedReceiverData ? selectedReceiverData._id : null
@@ -47,6 +48,10 @@ const Messages = () => {
   useEffect(() => {
     if (!auth || !socket || !selectedReceiverData) return
 
+    if (conversationData.isSuccess) {
+      conversationData.data?.messages?.length > 0 && setMessages(conversationData.data.messages)
+    }
+
     //Typing event
     let activityTimer
     socket.on("typing", (senderName) => {
@@ -60,16 +65,13 @@ const Messages = () => {
     //NewMessage event
     socket.on("getMessage", (data) => {
       queryClient.setQueryData(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }], (prevData) => {
-        return {
-          ...prevData,
-          messages: [...prevData.messages, data],
-        };
+        setMessages((prevData) => [...prevData, data])
       });
       queryClient.invalidateQueries(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }]);
       setTyping('')
     });
 
-  }, [auth, socket, selectedReceiverData])
+  }, [auth, socket, selectedReceiverData, conversationData])
 
   return (
     <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='95vh' boxShadow='md'>
@@ -81,7 +83,7 @@ const Messages = () => {
             <Stack h='100%'>
               <ActionMenu data={selectedReceiverData} />
               <Divider />
-              <Stack h='73vh' overflow='auto'>
+              <Stack h='70vh' overflow='auto'>
                 {conversationData.isPending && (
                   <>
                     {Array.from({ length: 2 }, (_, i) => (
@@ -104,9 +106,9 @@ const Messages = () => {
                 )}
                 {conversationData.isSuccess && (
                   <Stack h='100%' >
-                    {conversationData.data.messages.length > 0 ? (
+                    {messages.length > 0 ? (
                       <Stack position='relative' h='100%' >
-                        {conversationData.data.messages.map((message, index) => (
+                        {messages.map((message, index) => (
                           <Stack key={index} display='flex' w='100%'>
                             {message.from === auth.user._id ? (
                               <Stack direction='row' alignSelf='end' alignItems='center'>
@@ -126,7 +128,7 @@ const Messages = () => {
                               </Stack>
                             ) : (
                               <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
-                                {index === 0 || conversationData.data.messages[index - 1].to !== message.to ? (
+                                {index === 0 || messages[index - 1].to !== message.to ? (
                                   <Avatar size='sm' src={`./media/avatars/${selectedReceiverData.avatar}.jpg`} />
                                 ) : <div style={{ marginLeft: '2rem' }} />}
                                 <Stack
@@ -148,15 +150,15 @@ const Messages = () => {
                             )}
                           </Stack>
                         ))}
-                        <Stack position='absolute' bottom='2%' left='2%'>
-                          <Text as='i' textAlign='start'>{typing}</Text>
-                        </Stack>
                       </Stack>
                     ) : (
                       <StartConversation data={selectedReceiverData} />
                     )}
                   </Stack>
                 )}
+              </Stack>
+              <Stack>
+                <Text as='i' fontSize='sm' textAlign='start' h='15px'>{typing}</Text>
               </Stack>
               <Stack display='flex' justifySelf='flex-end'>
                 <MessageInput data={conversationData.data} />
