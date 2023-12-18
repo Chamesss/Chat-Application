@@ -17,6 +17,7 @@ const Chat = () => {
     const Conversations = useQuery({
         queryKey: ['conversations', { myId: auth.user._id }],
         queryFn: getConversations,
+        staleTime: 1000,
     });
 
     const handleConversationClick = (data) => {
@@ -24,7 +25,7 @@ const Chat = () => {
     }
 
     return (
-        <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} boxShadow='md'>
+        <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} boxShadow='md' h='95vh'>
             <InputGroup>
                 <InputLeftElement pointerEvents='none'>
                     <Search2Icon />
@@ -42,8 +43,8 @@ const Chat = () => {
             </InputGroup>
             <OnlineUsers />
             {Conversations.data && Conversations.data.some((data) => data.messages.length > 0) ? (
-                <Stack h='68vh' overflow='auto'>
-                    {Conversations.data.map((data) => (
+                <Stack overflow='auto'>
+                    {Conversations.data.map((data, index) => (
                         <>
                             {data.messages.length > 0 && (
                                 <Box p={1} w='100%' onClick={() => handleConversationClick(data)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
@@ -71,7 +72,7 @@ const Chat = () => {
                     ))}
                 </Stack>
             ) : (
-                <Center h='68vh'>
+                <Center>
                     <Text>No conversations yet.</Text>
                 </Center>)
             }

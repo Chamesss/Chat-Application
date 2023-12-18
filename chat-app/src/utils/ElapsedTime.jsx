@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-const TimeAgoDisplay = (time) => {
+const TimeAgoDisplay = ({ time }) => {
     const [elapsedTime, setElapsedTime] = useState('');
     useEffect(() => {
 
         const timeAgo = () => {
             const currentDate = new Date();
-            const previousDate = new Date(time.time);
+            const previousDate = new Date(time);
             const timeDifference = currentDate - previousDate;
 
             const seconds = Math.floor(timeDifference / 1000);

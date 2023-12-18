@@ -39,13 +39,13 @@ const MessageInput = (data) => {
     };
 
     const handleSubmit = async () => {
-        setMessage('')
         socket.emit("sendMessage",
             auth.user._id,
             selectedReceiverData._id,
             data.data._id,
             message,
         );
+        setMessage('')
     }
 
     return (
@@ -72,7 +72,6 @@ const MessageInput = (data) => {
                     onChange={handleAttachmentUpload}
                 />
             </Stack>
-
             <InputGroup size='lg' ml='1rem'>
                 <CustomInput overflow='visible' overflowWrap='break-word' resize='vertical' pr='4rem' value={message} onChange={(e) => handleInput(e)} />
                 <InputRightElement width='3.5rem' height={'100%'}>
@@ -88,11 +87,11 @@ const MessageInput = (data) => {
 
                 </InputRightElement>
             </InputGroup>
-
-            <label onClick={handleSubmit} className={`${colorMode === 'light' ? 'icon-light' : 'icon-dark'} icon-2 margin-left`} style={{ cursor: 'pointer', color: colorMode === 'light' ? '#2A8BF2' : '#0E6DD8' }}>
-                <BsSendFill fontSize='1.8rem' className={`${message ? 'rotate' : 'init'}`} style={{ marginRight: '5px' }} />
-            </label>
-
+            <form  style={{ display: 'flex', flexDirection: 'row' }}>
+                <label onClick={handleSubmit} className={`${colorMode === 'light' ? 'icon-light' : 'icon-dark'} icon-2 margin-left`} style={{ cursor: 'pointer', color: colorMode === 'light' ? '#2A8BF2' : '#0E6DD8' }}>
+                    <BsSendFill fontSize='1.8rem' className={`${message ? 'rotate' : 'init'}`} style={{ marginRight: '5px' }} />
+                </label>
+            </form>
         </Center>
     )
 }

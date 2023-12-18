@@ -33,7 +33,6 @@ const initializeSocket = (server) => {
     })
 
     socket.on("addSocket", async (conversation_id, user_id) => {
-      console.log(conversation_id, user_id)
       try {
         const chat = await Conversation.findById(conversation_id)
         const userIndex = chat.participant.findIndex((id) => (id.user.toString() === user_id))

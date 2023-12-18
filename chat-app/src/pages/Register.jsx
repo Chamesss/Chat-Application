@@ -8,8 +8,8 @@ import { useMutation } from '@tanstack/react-query'
 
 const Register = () => {
   const { colorMode } = useColorMode();
-  const [firstname, setFirstname] = useState(null)
-  const [lastname, setLastname] = useState(null)
+  const [firstName, setFirstname] = useState(null)
+  const [lastName, setLastname] = useState(null)
   const [email, setEmail] = useState(null)
   const [pwd, setPwd] = useState(null)
   const { setAuth } = useAuth();
@@ -51,7 +51,7 @@ const Register = () => {
                 variant='outline'
                 width='auto'
                 onChange={(e) => setFirstname(e.target.value)}
-                value={firstname}
+                value={firstName}
               />
               <CustomInput
                 placeholder='Lastname*'
@@ -59,7 +59,7 @@ const Register = () => {
                 variant='outline'
                 width='auto'
                 onChange={(e) => setLastname(e.target.value)}
-                value={lastname}
+                value={lastName}
               />
             </SimpleGrid>
             <CustomInput
@@ -88,7 +88,7 @@ const Register = () => {
               >I want to receive inspiration, marketing promotions and updates via email.
               </Checkbox>
             </Stack>
-            <Button isDisabled={!firstname || !lastname || !email || !pwd} type='submit' boxShadow='base' w='100%' color='white' sx={{ '&:hover': { backgroundColor: colorMode === 'light' ? 'blue.500' : 'blue.700' } }} bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}
+            <Button isDisabled={!firstName || !lastName || !email || !pwd} type='submit' boxShadow='base' w='100%' color='white' sx={{ '&:hover': { backgroundColor: colorMode === 'light' ? 'blue.500' : 'blue.700' } }} bg={colorMode === 'light' ? 'blue.400' : 'blue.600'}
             >
               {mutation.isPending ? 'Pending...' : 'Register'}
             </Button>

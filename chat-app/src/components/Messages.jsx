@@ -39,6 +39,7 @@ const Messages = () => {
   useEffect(() => {
     if (conversationData.data && conversationData.isSuccess && !emitted) {
       socket.emit("addSocket", conversationData.data._id, senderId);
+      socket.emit("addConversation", conversationData.data._id);
       setEmitted(true);
     }
   }, [conversationData, emitted, senderId])
@@ -64,22 +65,23 @@ const Messages = () => {
           messages: [...prevData.messages, data],
         };
       });
+      queryClient.invalidateQueries(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }]);
       setTyping('')
     });
-    
+
   }, [auth, socket, selectedReceiverData])
 
   return (
-    <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='100%' boxShadow='md'>
+    <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='95vh' boxShadow='md'>
       {!selectedReceiverData ? (
         <DefaultMessage />
       ) : (
-        <Stack h='100%' justifyContent='space-between'>
+        <Stack maxH='100%' justifyContent='space-between'>
           {selectedReceiverData && auth && (
             <Stack h='100%'>
               <ActionMenu data={selectedReceiverData} />
               <Divider />
-              <Stack h='100%'>
+              <Stack h='73vh' overflow='auto'>
                 {conversationData.isPending && (
                   <>
                     {Array.from({ length: 2 }, (_, i) => (
@@ -101,14 +103,16 @@ const Messages = () => {
                   </Center>
                 )}
                 {conversationData.isSuccess && (
-                  <Stack h='100%'>
+                  <Stack h='100%' >
                     {conversationData.data.messages.length > 0 ? (
-                      <Stack position='relative' h='100%' overflow='hidden'>
+                      <Stack position='relative' h='100%' >
                         {conversationData.data.messages.map((message, index) => (
                           <Stack key={index} display='flex' w='100%'>
                             {message.from === auth.user._id ? (
                               <Stack direction='row' alignSelf='end' alignItems='center'>
-                                <ElapsedTime time={message.created_at} />
+                                <Text fontSize='xs'>
+                                  <ElapsedTime time={message.created_at} />
+                                </Text>
                                 <Text
                                   borderRadius={20}
                                   px={4}
@@ -137,7 +141,9 @@ const Messages = () => {
                                     {message.text}
                                   </Text>
                                 </Stack>
-                                <ElapsedTime time={message.created_at} />
+                                <Text fontSize='xs'>
+                                  <ElapsedTime time={message.created_at} />
+                                </Text>
                               </Stack>
                             )}
                           </Stack>
@@ -152,11 +158,11 @@ const Messages = () => {
                   </Stack>
                 )}
               </Stack>
+              <Stack display='flex' justifySelf='flex-end'>
+                <MessageInput data={conversationData.data} />
+              </Stack>
             </Stack>
           )}
-          <Stack display='flex' justifySelf='flex-end'>
-            <MessageInput data={conversationData.data} />
-          </Stack>
         </Stack>
       )}
     </Stack>

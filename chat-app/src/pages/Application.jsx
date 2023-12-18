@@ -26,7 +26,7 @@ const Application = () => {
 
   return (
     <ChatProvider>
-      <Stack w='100%' m='auto' flexDirection='row' textAlign='center' centerContent px={6}>
+      <Stack w='100%' m='auto' flexDirection='row' textAlign='center' px={6}>
         <Stack w='30%'>
           <Chat />
         </Stack>
