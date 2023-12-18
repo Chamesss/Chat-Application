@@ -6,7 +6,7 @@ const getConversation = async ({ queryKey }) => {
         const response = await axios.get(`/chat/conversation/find/${data.sender_Id}/${data.receiver_Id}`);
         return response.data;
     } catch (error) {
-        throw new Error('Failed to fetch Conversation.');
+        throw new Error(error.response.data)
     }
 };
 
@@ -17,8 +17,8 @@ const addConversation = async (data) => {
             receiverId: data.receiver_id,
         })
         return response.data
-    } catch (err) {
-        console.log(err)
+    } catch (error) {
+        throw new Error(error.response.data)
     }
 }
 
@@ -28,7 +28,7 @@ const getConversations = async({queryKey}) => {
         const response = await axios.get(`/chat/conversation/${data.myId}`)
         return response.data
     } catch (error) {
-        throw new Error('Failed to fetch Conversations.');
+        throw new Error(error.response.data)
     }
 }
 

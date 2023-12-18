@@ -39,16 +39,16 @@ const Messages = () => {
   useEffect(() => {
     if (conversationData.data && conversationData.isSuccess && !emitted) {
       socket.emit("addSocket", conversationData.data._id, senderId);
-      console.log('socket added !! ')
       setEmitted(true);
     }
   }, [conversationData, emitted, senderId])
 
   useEffect(() => {
     if (!auth || !socket || !selectedReceiverData) return
+
+    //Typing event
     let activityTimer
     socket.on("typing", (senderName) => {
-      console.log('aaaa')
       setTyping(`${senderName} is typing...`)
       clearTimeout(activityTimer)
       activityTimer = setTimeout(() => {
@@ -66,6 +66,7 @@ const Messages = () => {
       });
       setTyping('')
     });
+    
   }, [auth, socket, selectedReceiverData])
 
   return (

@@ -7,9 +7,6 @@ const Header = () => {
     useEffect(() => {
         colorMode === 'dark' ? setLightMode(false) : setLightMode(true)
     }, [colorMode])
-    useEffect(() => {
-        console.log('lightmode === ', lightMode)
-    }, [lightMode])
     const handleChange = (e) => {
         e.preventDefault()
         setLightMode(!lightMode)
