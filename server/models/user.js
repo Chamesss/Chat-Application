@@ -39,5 +39,9 @@ const userSchema = new mongoose.Schema({
     enum: ["Online", "Offline"],
     default: "Offline",
   },
+  sockets: {
+    type: [String],
+    default: [],
+  },
 })
 module.exports = mongoose.model("User", userSchema)

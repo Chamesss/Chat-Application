@@ -3,6 +3,10 @@ const User = require('../models/user')
 const mongoose = require('mongoose');
 
 exports.newConversation = async (req, res) => {
+    const conversation = await Conversation.findOne({
+        'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
+    });
+    if (conversation) return res.status(403).json('Conversation already exists')
     const newConversation = new Conversation({
         participant: [
             { user: req.body.senderId, sockets: [] },

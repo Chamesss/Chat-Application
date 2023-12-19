@@ -15,7 +15,7 @@ import useSocket from '../hooks/useSocket';
 import { useChat } from '../Contexts/ChatProvider';
 import useAuth from '../hooks/useAuth';
 
-const MessageInput = (data) => {
+const MessageInput = ({data}) => {
     const { colorMode } = useColorMode()
     const { socket } = useSocket()
     const { selectedReceiverData } = useChat()
@@ -25,7 +25,7 @@ const MessageInput = (data) => {
     const handleInput = (e) => {
         e.preventDefault()
         setMessage(e.target.value)
-        socket.emit("typing", data.data._id, auth.user.firstName, selectedReceiverData._id)
+        socket.emit("typing", data._id, auth.user.firstName, selectedReceiverData._id)
     }
     const handleEmojiClick = (emoji) => {
         setMessage((prevMessage) => prevMessage + emoji.emoji);
@@ -42,7 +42,7 @@ const MessageInput = (data) => {
         socket.emit("sendMessage",
             auth.user._id,
             selectedReceiverData._id,
-            data.data._id,
+            data._id,
             message,
         );
         setMessage('')

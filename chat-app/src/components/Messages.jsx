@@ -18,7 +18,7 @@ const Messages = () => {
   const { auth } = useAuth();
   const { socket } = useSocket();
   const [typing, setTyping] = useState('')
-  const [emitted, setEmitted] = useState(false)
+  const [conversationId, setConversationId] = useState(false)
   const [messages, setMessages] = useState([])
   const queryClient = useQueryClient();
   const senderId = auth && auth.user ? auth.user._id : null;
@@ -30,7 +30,7 @@ const Messages = () => {
     enabled: !!senderId && !!receiverId,
     select: (data) => {
       if (!data) {
-        addConversation({ senderId: auth.user._id, receiver_id: receiverId })
+        addConversation({ senderId: senderId, receiver_id: receiverId })
         refetch()
       }
       return data
@@ -38,36 +38,33 @@ const Messages = () => {
   });
 
   useEffect(() => {
-    if (conversationData.data && conversationData.isSuccess) {
-      socket.emit("addSocket", conversationData.data._id, senderId);
-      socket.emit("addConversation", conversationData.data._id);
-    }
-  }, [conversationData, emitted, senderId])
-
-  useEffect(() => {
     if (!auth || !socket || !selectedReceiverData) return
 
     if (conversationData.isSuccess) {
       conversationData.data?.messages && setMessages(conversationData.data.messages)
+      setConversationId(conversationData.data._id)
     }
 
     //Typing event
     let activityTimer
-    socket.on("typing", (senderName) => {
-      setTyping(`${senderName} is typing...`)
-      clearTimeout(activityTimer)
-      activityTimer = setTimeout(() => {
-        setTyping('');
-      }, 3000)
+    socket.on("typing", (senderName, conversation_id) => {
+      console.log('aaaa')
+      if (conversation_id === conversationId) {
+        setTyping(`${senderName} is typing...`)
+        clearTimeout(activityTimer)
+        activityTimer = setTimeout(() => {
+          setTyping('');
+        }, 3000)
+      }
     })
 
     //NewMessage event
-    socket.on("getMessage", (data) => {
-      queryClient.setQueryData(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }], (prevData) => {
-        setMessages((prevData) => [...prevData, data])
-      });
-      queryClient.invalidateQueries(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }]);
-      setTyping('')
+    socket.on("getMessage", (message, conversation_id) => {
+      if (conversation_id === conversationId) {
+        setMessages((prevData) => [...prevData, message])
+        queryClient.invalidateQueries(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }]);
+        setTyping('')
+      }
     });
 
   }, [auth, socket, selectedReceiverData, conversationData])

@@ -19,7 +19,7 @@ const Application = () => {
       }))
       return
     }
-    socket.emit("statusOnline", auth.user._id)
+    socket.emit("connectStatus")
     return () => {
       socket?.off("connect");
     };
