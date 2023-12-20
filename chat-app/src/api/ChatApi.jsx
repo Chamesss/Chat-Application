@@ -25,6 +25,7 @@ const addConversation = async (data) => {
 const getConversations = async({queryKey}) => {
     try {
         const [_, data] = queryKey
+        console.log('getConversations API running')
         const response = await axios.get(`/chat/conversation/${data.myId}`)
         return response.data
     } catch (error) {
