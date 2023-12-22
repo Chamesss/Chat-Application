@@ -3,7 +3,6 @@ import axios from "./axios";
 const getConversation = async ({ queryKey }) => {
     try {
         const [_, data] = queryKey
-        console.log('getConversation API running')
         const response = await axios.get(`/chat/conversation/find/${data.sender_Id}/${data.receiver_Id}`);
         return response.data;
     } catch (error) {

@@ -51,7 +51,7 @@ const Messages = () => {
       setMessages(freshData.messages);
     };
     fetchConversation();
-    const intervalId = setInterval(fetchConversation, 60000);
+    const intervalId = setInterval(fetchConversation, 30000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -72,7 +72,6 @@ const Messages = () => {
 
     //NewMessage event
     socket.on("getMessage", (message, conversation_id) => {
-      console.log('getMessage running')
       if (conversation_id === conversationId) {
         setMessages((prevData) => [...prevData, message])
         setTyping('')
@@ -118,7 +117,7 @@ const Messages = () => {
                         {message.from === auth.user._id ? (
                           <Stack direction='row' alignSelf='end' alignItems='center'>
                             <Text fontSize='xs'>
-                              <ElapsedTime time={message.created_at} />
+                              <ElapsedTime time={message.created_at} dateNow={new Date()} />
                             </Text>
                             <Text
                               borderRadius={20}
@@ -149,7 +148,7 @@ const Messages = () => {
                               </Text>
                             </Stack>
                             <Text fontSize='xs'>
-                              <ElapsedTime time={message.created_at} />
+                              <ElapsedTime time={message.created_at} dateNow={new Date()} />
                             </Text>
                           </Stack>
                         )}
