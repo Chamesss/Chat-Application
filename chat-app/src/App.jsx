@@ -13,6 +13,7 @@ import {
 } from 'react-router-dom'
 import { useState, useEffect } from 'react';
 import AvatarSelection from './pages/Avatar';
+import { ChatProvider } from './Contexts/ChatProvider';
 
 
 const router = createBrowserRouter(
@@ -46,7 +47,11 @@ function App() {
 
   return (
     <>
-      {showRouter && <RouterProvider router={router} />}
+      {showRouter &&
+        <ChatProvider>
+          <RouterProvider router={router} />
+        </ChatProvider>
+      }
     </>
   );
 }
