@@ -8,7 +8,7 @@ import { getConversation, addConversation } from '../api/ChatApi'
 import useAuth from '../hooks/useAuth'
 import ElapsedTime from '../utils/ElapsedTime'
 import useSocket from '../hooks/useSocket'
-import { useEffect, useState, useRef  } from 'react'
+import { useEffect, useState, useRef } from 'react'
 
 
 const Messages = () => {
@@ -20,6 +20,7 @@ const Messages = () => {
   const [typing, setTyping] = useState('')
   const [conversationId, setConversationId] = useState(false)
   const [messages, setMessages] = useState([])
+  const [errorSendMessage, setErrorSendMessage] = useState(null)
   const queryClient = useQueryClient();
 
   const conversationData = useQuery({
@@ -79,6 +80,15 @@ const Messages = () => {
       }
     });
 
+    socket.on("errorSendMessage", (message, conversation_id, error) => {
+      if (conversation_id === conversationId) {
+        if (conversation_id === conversationId) {
+          setMessages((prevData) => [...prevData, message])
+          setTyping('')
+        }
+      }
+    })
+
   }, [auth, socket, selectedReceiverData, conversationId])
 
   return (
@@ -116,19 +126,38 @@ const Messages = () => {
                       <Stack key={index} display='flex' w='100%'>
                         {message.from === auth.user._id ? (
                           <Stack direction='row' alignSelf='end' alignItems='center'>
-                            <Text fontSize='xs'>
-                              <ElapsedTime time={message.created_at} dateNow={new Date()} />
-                            </Text>
-                            <Text
-                              borderRadius={20}
-                              px={4}
-                              py={2}
-                              w='fit-content'
-                              color='white'
-                              bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
-                            >
-                              {message.text}
-                            </Text>
+                            {message.status === true ? (
+                              <Stack direction='row' alignSelf='end' alignItems='center'>
+                                <Text fontSize='xs'>
+                                  <ElapsedTime time={message.created_at} dateNow={new Date()} />
+                                </Text>
+                                <Text
+                                  borderRadius={20}
+                                  px={4}
+                                  py={2}
+                                  w='fit-content'
+                                  color='white'
+                                  bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
+                                >
+                                  {message.text}
+                                </Text>
+                              </Stack>
+                            ) : (
+                              <Stack direction='row' alignSelf='end' alignItems='center'>
+                                <Text fontSize='xs'>Msg not sent</Text>
+                                <Text
+                                  borderRadius={20}
+                                  px={4}
+                                  py={2}
+                                  w='fit-content'
+                                  color='red'
+                                  bgColor={colorMode === 'light' ? '#BABABA' : '#888888'}
+                                >
+                                  {message.text}
+                                </Text>
+                              </Stack>
+                            )}
+
                           </Stack>
                         ) : (
                           <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
@@ -153,6 +182,7 @@ const Messages = () => {
                           </Stack>
                         )}
                       </Stack>
+
                     ))}
                   </Stack>
                 ) : (

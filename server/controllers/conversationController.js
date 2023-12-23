@@ -49,7 +49,7 @@ exports.getAllConversations = async (req, res) => {
                 $project: {
                     participant: '$participant',
                     messages: {
-                        $slice: ['$messages', -10]
+                        $slice: ['$messages', -11]
                     }
                 }
             }

@@ -51,15 +51,19 @@ const Chat = () => {
                 )
             );
         });
-    }, [socket, conversations])
+    }, [socket])
 
     const handleConversationClick = (data) => {
         setSelectedReceiverData(data.user)
     }
 
-    const Count = () => {
-
-    }
+    const Count = (data) => {
+        let e = 0;
+        let i = data.messages.length;
+        for (; i > 1 && data.messages[i - 1].from !== auth.user._id; e++, i--);
+        if (e > 9) return '+9'
+        return e.toString()
+    };
 
     return (
         <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} boxShadow='md' h='95vh'>
@@ -115,24 +119,7 @@ const Chat = () => {
                                         <Text color='#6F7276' fontSize='xs'><ElapsedTime time={data.messages[data.messages.length - 1].created_at} dateNow={new Date()} /></Text>
                                         {data.messages[data.messages.length - 1].from !== auth.user._id &&
                                             <Text display='flex' justifyContent='center' alignItems='center' color='white' borderRadius='50px' bgColor='#FA474F' p={0} w='20px' h='20px'>
-                                                {((data) => {
-                                                    console.log(data)
-                                                    let i = data.messages.length;
-                                                    let e = 0;
-                                                    console.log('before i ===', i)
-                                                    console.log('before e ===', e)
-
-                                                    while (data.messages[i - 1].from !== auth.user._id || i === 0) {
-                                                        console.log("x1")
-                                                        console.log(data.messages[i - 1].from)
-                                                        e++;
-                                                        i--;
-                                                    }
-                                                    console.log('after i ===', i)
-                                                    console.log('after e ===', e)
-
-                                                    return e;
-                                                })(data)}
+                                                {Count(data)}
                                             </Text>}
                                     </Stack>
                                 </Box>

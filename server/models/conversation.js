@@ -31,6 +31,9 @@ const ConversationSchema = new mongoose.Schema({
             text: {
                 type: String,
             },
+            status: {
+                type: Boolean,
+            }
         }
     ]
 })

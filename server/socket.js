@@ -41,15 +41,16 @@ const initializeSocket = (server) => {
       try {
         const receiver = await User.findById(receiver_id);
         const sender = await User.findById(user_id)
-        const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text }
+        const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: true }
         await Conversation.findByIdAndUpdate(conversation_id, {
           $push: { messages: message }
         })
         receiver?.sockets?.forEach(socket => io.to(socket).emit("getMessage", message, conversation_id));
         sender?.sockets?.forEach(socket => io.to(socket).emit("getMessage", message, conversation_id));
       } catch (error) {
+        const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: false }
         console.log(error)
-        io.to(socket.id).emit("errorSendMessage", message, error);
+        io.to(socket.id).emit("errorSendMessage", message, conversation_id, error);
       }
     });
 
