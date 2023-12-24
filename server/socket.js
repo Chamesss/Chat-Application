@@ -41,7 +41,7 @@ const initializeSocket = (server) => {
       try {
         const receiver = await User.findById(receiver_id);
         const sender = await User.findById(user_id)
-        const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: true }
+        const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: true, seen: { status: false } }
         await Conversation.findByIdAndUpdate(conversation_id, {
           $push: { messages: message }
         })
@@ -57,7 +57,6 @@ const initializeSocket = (server) => {
     socket.on("refresh", async (userId) => {
       try {
         const user = await User.findById(userId)
-        console.log(user)
         user?.sockets?.forEach(socket => io.to(socket).emit("refreshData"));
       } catch (error) {
         console.log(error)

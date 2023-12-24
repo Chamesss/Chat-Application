@@ -46,12 +46,10 @@ const Messages = () => {
   }, [messages]);
 
   const fetchConversation = async () => {
-    console.log('fetchConversation Event')
     const freshData = await queryClient.fetchQuery({
       queryKey: ['conversation', { sender_Id: selectedReceiverData._id, receiver_Id: auth.user._id }],
       queryFn: getConversation,
     });
-    console.log('setting data')
     setConversationId(freshData._id)
     setMessages(freshData.messages);
   };
@@ -78,13 +76,13 @@ const Messages = () => {
     })
 
     socket.on("refreshData", () => {
-      console.log('refresh data bootet')
       fetchConversation()
     })
 
     //NewMessage event
     socket.on("getMessage", (message, conversation_id) => {
       if (conversation_id === conversationId) {
+        console.log(message)
         if (message.from !== auth.user._id) {
           mutation.mutate({ firstId: auth.user._id, secondId: selectedReceiverData._id });
           setTimeout(() => {

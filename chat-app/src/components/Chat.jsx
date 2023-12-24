@@ -6,11 +6,9 @@ import { getConversations } from '../api/ChatApi'
 import { useState, useEffect } from 'react'
 import useAuth from '../hooks/useAuth'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import axios from '../api/axios'
 import ElapsedTime from '../utils/ElapsedTime'
 import SyncLoader from "react-spinners/SyncLoader";
 import useSocket from '../hooks/useSocket'
-
 
 const Chat = () => {
     const { colorMode } = useColorMode()
@@ -26,28 +24,29 @@ const Chat = () => {
         enabled: false,
     });
 
+    const fetchDataAndSetConversations = async () => {
+        const freshData = await queryClient.fetchQuery({
+            queryKey: ['conversations', { myId: auth.user._id }],
+            getConversations,
+        });
+        console.log(freshData)
+        setConversations(freshData);
+    };
+
     useEffect(() => {
-        const fetchDataAndSetConversations = async () => {
-            const freshData = await queryClient.fetchQuery({
-                queryKey: ['conversations', { myId: auth.user._id }],
-                getConversations,
-            });
-            setConversations(freshData);
-        };
         fetchDataAndSetConversations();
         const intervalId = setInterval(fetchDataAndSetConversations, 60000);
         return () => clearInterval(intervalId);
     }, []);
 
     useEffect(() => {
-        if (!socket || !conversations) return
+        if (!socket) return
         socket.on("getMessage", (message, conversation_id) => {
+            console.log('aaaaa')
             const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
             setConversations(prevConversations =>
                 prevConversations.map((conv, index) =>
-                    index === conversationIndex
-                        ? { ...conv, messages: [...conv.messages, message] }
-                        : conv
+                    index === conversationIndex ? { ...conv, messages: [...conv.messages, message] } : conv
                 )
             );
         });
@@ -55,12 +54,15 @@ const Chat = () => {
 
     const handleConversationClick = (data) => {
         setSelectedReceiverData(data.user)
+        setTimeout(() => {
+            fetchDataAndSetConversations()
+        }, [500])
     }
 
     const Count = (data) => {
         let e = 0;
         let i = data.messages.length;
-        for (; i > 1 && data.messages[i - 1].from !== auth.user._id; e++, i--);
+        for (; i > 1 && data.messages[i - 1].from !== auth.user._id && !data.messages[i - 1].seen.status; e++, i--);
         if (e > 9) return '+9'
         return e.toString()
     };
@@ -112,12 +114,18 @@ const Chat = () => {
                                             <Text fontWeight='700' fontSize='md'>{data.user.firstName + ' ' + data.user.lastName}</Text>
                                             {data.messages[data.messages.length - 1].from === auth.user._id
                                                 ? <Text fontWeight='500' color='#6F7276' fontSize='sm'>You: {data.messages[data.messages.length - 1].text}</Text>
-                                                : <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.messages[data.messages.length - 1].text}</Text>}
+                                                : <>
+                                                    {!data.messages[data.messages.length - 1].seen?.status ? (
+                                                        <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.user.firstName}: {data.messages[data.messages.length - 1].text}</Text>
+                                                    ) : (<Text fontWeight='500' color='#6F7276' fontSize='sm'>{data.user.firstName}: {data.messages[data.messages.length - 1].text}</Text>)
+                                                    }
+                                                </>
+                                            }
                                         </Stack>
                                     </Center>
                                     <Stack display='flex' alignItems='center' p={2}>
                                         <Text color='#6F7276' fontSize='xs'><ElapsedTime time={data.messages[data.messages.length - 1].created_at} dateNow={new Date()} /></Text>
-                                        {data.messages[data.messages.length - 1].from !== auth.user._id &&
+                                        {data.messages[data.messages.length - 1].from !== auth.user._id && !data.messages[data.messages.length - 1].seen.status &&
                                             <Text display='flex' justifyContent='center' alignItems='center' color='white' borderRadius='50px' bgColor='#FA474F' p={0} w='20px' h='20px'>
                                                 {Count(data)}
                                             </Text>}
