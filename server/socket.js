@@ -54,6 +54,16 @@ const initializeSocket = (server) => {
       }
     });
 
+    socket.on("refresh", async (userId) => {
+      try {
+        const user = await User.findById(userId)
+        console.log(user)
+        user?.sockets?.forEach(socket => io.to(socket).emit("refreshData"));
+      } catch (error) {
+        console.log(error)
+      }
+    })
+
     // Disconnect event
     socket.on("disconnect", async () => {
       try {

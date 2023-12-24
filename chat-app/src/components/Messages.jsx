@@ -36,23 +36,29 @@ const Messages = () => {
   });
 
   useEffect(() => {
-    if (conversationContainerRef.current) {
-      conversationContainerRef.current.scrollTop = conversationContainerRef.current.scrollHeight;
+    if (messages[messages.length - 1]?.from !== auth.user._id && !messages[messages.length - 1]?.seen?.status) {
+      mutation.mutate({ firstId: auth.user._id, secondId: selectedReceiverData._id });
+      setTimeout(() => {
+        socket.emit("refresh", selectedReceiverData._id)
+      }, 500)
     }
+    conversationContainerRef.current?.scrollTo?.(0, conversationContainerRef.current?.scrollHeight);
   }, [messages]);
 
   const fetchConversation = async () => {
+    console.log('fetchConversation Event')
     const freshData = await queryClient.fetchQuery({
       queryKey: ['conversation', { sender_Id: selectedReceiverData._id, receiver_Id: auth.user._id }],
       queryFn: getConversation,
     });
+    console.log('setting data')
     setConversationId(freshData._id)
     setMessages(freshData.messages);
   };
 
   useEffect(() => {
     fetchConversation();
-    const intervalId = setInterval(fetchConversation, 10000);
+    const intervalId = setInterval(fetchConversation, 30000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -71,12 +77,19 @@ const Messages = () => {
       }
     })
 
+    socket.on("refreshData", () => {
+      console.log('refresh data bootet')
+      fetchConversation()
+    })
+
     //NewMessage event
     socket.on("getMessage", (message, conversation_id) => {
       if (conversation_id === conversationId) {
         if (message.from !== auth.user._id) {
           mutation.mutate({ firstId: auth.user._id, secondId: selectedReceiverData._id });
-          fetchConversation()
+          setTimeout(() => {
+            socket.emit("refresh", selectedReceiverData._id)
+          }, 500)
         }
         setMessages((prevData) => [...prevData, message])
         setTyping('')
@@ -87,12 +100,6 @@ const Messages = () => {
       if (conversation_id === conversationId) {
         setMessages((prevData) => [...prevData, message])
         setTyping('')
-      }
-    })
-
-    socket.on("seen", (conversation_id) => {
-      if (conversation_id === conversationId) {
-
       }
     })
 
@@ -160,8 +167,8 @@ const Messages = () => {
                                   </Text>
                                 </Stack>
                                 {messages.length - 1 === index && message.seen?.status && (
-                                    <Text fontSize='0.7rem' as='i' textAlign='left'>Seen at {calculDate(message.seen.date)}</Text>
-                                  )}
+                                  <Text fontSize='0.7rem' as='i' textAlign='left'>Seen at {calculDate(message.seen.date)}</Text>
+                                )}
                               </Stack>
                             ) : (
                               <Stack direction='row' alignSelf='end' alignItems='center'>
