@@ -32,4 +32,12 @@ const getConversations = async({queryKey}) => {
     }
 }
 
-export { getConversation, addConversation, getConversations };
+const messageSeen = async(data) => {
+    try {
+        const response = await axios.post(`/chat/conversation/seen/${data.firstId}/${data.secondId}`)
+        return response.data
+    } catch (error) {
+        throw new Error(error.response.data)
+    }
+}
+export { getConversation, addConversation, getConversations, messageSeen };

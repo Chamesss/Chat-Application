@@ -106,3 +106,26 @@ exports.getConversationOfTwoUsers = async (req, res) => {
         res.status(500).json(err);
     }
 };
+
+exports.messageSeen = async (req, res) => {
+    try {
+        const conversation = await Conversation.findOne({
+            'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
+        });
+        if (conversation) {
+            const messages = conversation.messages;
+            if (messages && messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                if (lastMessage && lastMessage.seen) {
+                    lastMessage.seen.status = true;
+                    await conversation.save();
+                    return res.status(200).json({ message: 'Message seen updated successfully.' });
+                }
+            }
+        } else {
+            return res.status(404).json({ message: 'Conversation not found.' });
+        }
+    } catch (error) {
+        res.status(500).json(err);
+    }
+};

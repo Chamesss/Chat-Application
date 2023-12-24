@@ -3,8 +3,8 @@ import { useChat } from '../Contexts/ChatProvider'
 import ActionMenu from './ActionMenu'
 import MessageInput from './MessageInput'
 import StartConversation from './StartConversation'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getConversation, addConversation } from '../api/ChatApi'
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
+import { getConversation, addConversation, messageSeen } from '../api/ChatApi'
 import useAuth from '../hooks/useAuth'
 import ElapsedTime from '../utils/ElapsedTime'
 import useSocket from '../hooks/useSocket'
@@ -20,7 +20,6 @@ const Messages = () => {
   const [typing, setTyping] = useState('')
   const [conversationId, setConversationId] = useState(false)
   const [messages, setMessages] = useState([])
-  const [errorSendMessage, setErrorSendMessage] = useState(null)
   const queryClient = useQueryClient();
 
   const conversationData = useQuery({
@@ -42,17 +41,18 @@ const Messages = () => {
     }
   }, [messages]);
 
+  const fetchConversation = async () => {
+    const freshData = await queryClient.fetchQuery({
+      queryKey: ['conversation', { sender_Id: selectedReceiverData._id, receiver_Id: auth.user._id }],
+      queryFn: getConversation,
+    });
+    setConversationId(freshData._id)
+    setMessages(freshData.messages);
+  };
+
   useEffect(() => {
-    const fetchConversation = async () => {
-      const freshData = await queryClient.fetchQuery({
-        queryKey: ['conversation', { sender_Id: selectedReceiverData._id, receiver_Id: auth.user._id }],
-        queryFn: getConversation,
-      });
-      setConversationId(freshData._id)
-      setMessages(freshData.messages);
-    };
     fetchConversation();
-    const intervalId = setInterval(fetchConversation, 30000);
+    const intervalId = setInterval(fetchConversation, 10000);
     return () => clearInterval(intervalId);
   }, []);
 
@@ -74,22 +74,38 @@ const Messages = () => {
     //NewMessage event
     socket.on("getMessage", (message, conversation_id) => {
       if (conversation_id === conversationId) {
+        if (message.from !== auth.user._id) {
+          mutation.mutate({ firstId: auth.user._id, secondId: selectedReceiverData._id });
+          fetchConversation()
+        }
         setMessages((prevData) => [...prevData, message])
         setTyping('')
-        //queryClient.invalidateQueries(['conversations', { sender_Id: auth.user._id, receiver_Id: selectedReceiverData._id }]);
       }
     });
 
     socket.on("errorSendMessage", (message, conversation_id, error) => {
       if (conversation_id === conversationId) {
-        if (conversation_id === conversationId) {
-          setMessages((prevData) => [...prevData, message])
-          setTyping('')
-        }
+        setMessages((prevData) => [...prevData, message])
+        setTyping('')
+      }
+    })
+
+    socket.on("seen", (conversation_id) => {
+      if (conversation_id === conversationId) {
+
       }
     })
 
   }, [auth, socket, selectedReceiverData, conversationId])
+
+  const mutation = useMutation({
+    mutationFn: messageSeen
+  })
+
+  const calculDate = (date) => {
+    const seenDate = new Date(date);
+    return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
 
   return (
     <Stack maxH='100%' justifyContent='space-between'>
@@ -123,24 +139,29 @@ const Messages = () => {
                 {messages.length > 0 ? (
                   <Stack position='relative' h='100%' >
                     {messages.map((message, index) => (
-                      <Stack key={index} display='flex' w='100%'>
+                      <Stack key={index} display='flex' w='100%' onTouchStart={() => handleStackClick(message)}>
                         {message.from === auth.user._id ? (
                           <Stack direction='row' alignSelf='end' alignItems='center'>
                             {message.status === true ? (
-                              <Stack direction='row' alignSelf='end' alignItems='center'>
-                                <Text fontSize='xs'>
-                                  <ElapsedTime time={message.created_at} dateNow={new Date()} />
-                                </Text>
-                                <Text
-                                  borderRadius={20}
-                                  px={4}
-                                  py={2}
-                                  w='fit-content'
-                                  color='white'
-                                  bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
-                                >
-                                  {message.text}
-                                </Text>
+                              <Stack direction='column' alignItems='end'>
+                                <Stack display='flex' flexDirection='row' justifyContent='flex-end' alignItems='center'>
+                                  <Text fontSize='xs'>
+                                    <ElapsedTime time={message.created_at} dateNow={new Date()} />
+                                  </Text>
+                                  <Text
+                                    borderRadius={20}
+                                    px={4}
+                                    py={2}
+                                    w='fit-content'
+                                    color='white'
+                                    bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
+                                  >
+                                    {message.text}
+                                  </Text>
+                                </Stack>
+                                {messages.length - 1 === index && message.seen?.status && (
+                                    <Text fontSize='0.7rem' as='i' textAlign='left'>Seen at {calculDate(message.seen.date)}</Text>
+                                  )}
                               </Stack>
                             ) : (
                               <Stack direction='row' alignSelf='end' alignItems='center'>
@@ -157,7 +178,6 @@ const Messages = () => {
                                 </Text>
                               </Stack>
                             )}
-
                           </Stack>
                         ) : (
                           <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
