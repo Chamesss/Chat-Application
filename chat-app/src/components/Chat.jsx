@@ -15,8 +15,9 @@ const Chat = ({ socket, authId }) => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
 
+    // the refetching of the conversations isn't updateding the conversations
+    // with the current state, to be fixed up...
     useEffect(() => {
-        console.log('fetching')
         fetchDataAndSetConversations()
     }, [chatId]);
 

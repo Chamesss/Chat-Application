@@ -80,7 +80,6 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     if (conversation_id === data._id) {
       if (message.from !== authId) {
         mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id });
-        console.log(message)
         socket.emit('messageSeen', message._id, conversation_id, selectedReceiverData._id)
       }
       updateMessages(message, conversation_id);

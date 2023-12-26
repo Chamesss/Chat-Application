@@ -72,9 +72,9 @@ exports.getAllConversations = async (req, res) => {
             };
         })
         res.status(200).json(combined);
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json(err);
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json(error);
     }
 }
 
