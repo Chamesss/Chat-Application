@@ -9,7 +9,7 @@ import SyncLoader from "react-spinners/SyncLoader";
 
 const Chat = ({ socket, authId }) => {
     const { colorMode } = useColorMode()
-    const { setSelectedReceiverData, opened, selectedReceiverData } = useChat()
+    const { setSelectedReceiverData } = useChat()
     const [conversations, setConversations] = useState([])
     const [loading, setLoading] = useState(true)
     const [success, setSuccess] = useState(false)
@@ -17,25 +17,7 @@ const Chat = ({ socket, authId }) => {
 
     useEffect(() => {
         fetchDataAndSetConversations()
-    }, [])
-
-    useEffect(() => {
-        console.log('aaaaa')
-        setConversations((prevConversations) =>
-            prevConversations.map((conv) =>
-                conv._id === selectedReceiverData
-                    ? {
-                        ...conv,
-                        messages: conv.messages.map((msg, index) =>
-                            index === conv.messages.length - 1
-                                ? { ...msg, seen: { status: true } }
-                                : msg
-                        ),
-                    }
-                    : conv
-            )
-        );
-    }, [selectedReceiverData]);
+    }, []);
 
     useEffect(() => {
         socket.on("getMessage", handleNewMessage);
@@ -52,13 +34,13 @@ const Chat = ({ socket, authId }) => {
     };
 
     const handleNewMessage = (message, conversation_id) => {
-        console.log('new message arrived');
         const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
         setConversations((prevConversations) =>
             prevConversations.map((conv, index) =>
                 index === conversationIndex ? { ...conv, messages: [...conv.messages, message] } : conv
             )
         );
+        console.log(selectedReceiverData)
     };
 
     const handleConversationClick = (data) => {

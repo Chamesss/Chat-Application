@@ -6,12 +6,10 @@ import { useMutation } from '@tanstack/react-query'
 import { getConversation, messageSeen } from '../api/ChatApi'
 import ElapsedTime from '../utils/ElapsedTime'
 import { useEffect, useState, useRef } from 'react'
-import { useChat } from '../Contexts/ChatProvider'
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
   const { colorMode } = useColorMode()
   const conversationContainerRef = useRef(null);
-  const { setOpened } = useChat()
   const [typing, setTyping] = useState('')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -19,7 +17,6 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   const [error, setError] = useState(false)
 
   useEffect(() => {
-
     fetchConversationFunction()
   }, [])
 
@@ -44,7 +41,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
       && (setData(response.data), setSuccess(true), setError(false), setLoading(false))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
-      (setOpened(true), mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }))
+      (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }))
   }
 
   // Event listener for "typing" event
