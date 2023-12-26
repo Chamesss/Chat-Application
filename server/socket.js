@@ -58,6 +58,15 @@ const initializeSocket = (server) => {
       }
     });
 
+    socket.on("messageSeen", async (message_id, conversation_id, receiver_id) => {
+      try {
+        const receiver = await User.findById(receiver_id);
+        receiver?.sockets?.map(socket => io.to(socket).emit("MessageSeen", message_id, conversation_id));
+      } catch (error) {
+        console.log(error)
+      }
+    })
+
     socket.on("refresh", async (userId) => {
       try {
         const user = await User.findById(userId)

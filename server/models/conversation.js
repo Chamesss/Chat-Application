@@ -16,6 +16,12 @@ const ConversationSchema = new mongoose.Schema({
     ],
     messages: [
         {
+            _id: {
+                type: mongoose.Schema.Types.ObjectId,
+                default: function () {
+                    return new mongoose.Types.ObjectId();
+                }
+            },
             to: {
                 type: mongoose.Schema.ObjectId,
                 ref: "User",

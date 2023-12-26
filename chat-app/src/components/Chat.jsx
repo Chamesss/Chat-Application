@@ -9,15 +9,16 @@ import SyncLoader from "react-spinners/SyncLoader";
 
 const Chat = ({ socket, authId }) => {
     const { colorMode } = useColorMode()
-    const { setSelectedReceiverData } = useChat()
+    const { setSelectedReceiverData, selectedReceiverData, chatId } = useChat()
     const [conversations, setConversations] = useState([])
     const [loading, setLoading] = useState(true)
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
 
     useEffect(() => {
+        console.log('fetching')
         fetchDataAndSetConversations()
-    }, []);
+    }, [chatId]);
 
     useEffect(() => {
         socket.on("getMessage", handleNewMessage);
@@ -35,12 +36,12 @@ const Chat = ({ socket, authId }) => {
 
     const handleNewMessage = (message, conversation_id) => {
         const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
+        conversation_id === chatId && message.from !== authId && (message.seen.status = true)
         setConversations((prevConversations) =>
             prevConversations.map((conv, index) =>
                 index === conversationIndex ? { ...conv, messages: [...conv.messages, message] } : conv
             )
         );
-        console.log(selectedReceiverData)
     };
 
     const handleConversationClick = (data) => {

@@ -4,9 +4,9 @@ const ChatContext = createContext()
 
 export const ChatProvider = ({ children }) => {
     const [selectedReceiverData, setSelectedReceiverData] = useState(null)
-    const [opened, setOpened] = useState(null)
+    const [chatId, setChatId] = useState(null)
     return (
-        <ChatContext.Provider value={{ selectedReceiverData, setSelectedReceiverData, opened, setOpened }}>
+        <ChatContext.Provider value={{ selectedReceiverData, setSelectedReceiverData, chatId, setChatId }}>
             {children}
         </ChatContext.Provider>
     )

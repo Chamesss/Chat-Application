@@ -6,10 +6,12 @@ import { useMutation } from '@tanstack/react-query'
 import { getConversation, messageSeen } from '../api/ChatApi'
 import ElapsedTime from '../utils/ElapsedTime'
 import { useEffect, useState, useRef } from 'react'
+import { useChat } from '../Contexts/ChatProvider'
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
   const { colorMode } = useColorMode()
   const conversationContainerRef = useRef(null);
+  const { setChatId } = useChat()
   const [typing, setTyping] = useState('')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
@@ -22,15 +24,18 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
 
   useEffect(() => {
     conversationContainerRef.current?.scrollTo?.(0, conversationContainerRef.current?.scrollHeight);
+    data?.messages && setChatId(data._id)
   }, [data]);
 
   useEffect(() => {
-    socket.on("typing", handleTypingEvent);
-    socket.on("getMessage", handleGetMessageEvent);
+    socket.on("typing", handleTypingEvent)
+    socket.on("getMessage", handleGetMessageEvent)
+    socket.on("MessageSeen", handleSeenMessageEvent)
     socket.on("errorSendMessage", handleErrorSendMessageEvent);
     return () => {
       socket.off("typing", handleTypingEvent);
       socket.off("getMessage", handleGetMessageEvent);
+      socket.off("MessageSeen", handleSeenMessageEvent)
       socket.off("errorSendMessage", handleErrorSendMessageEvent);
     };
   }, [data, typing]);
@@ -41,7 +46,8 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
       && (setData(response.data), setSuccess(true), setError(false), setLoading(false))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
-      (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }))
+      (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
+        socket.emit('messageSeen', response.data.messages[response.data.messages.length - 1]._id, response.data._id, selectedReceiverData._id))
   }
 
   // Event listener for "typing" event
@@ -54,11 +60,28 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     }
   };
 
+  // Event listener for "seen" event
+  const handleSeenMessageEvent = (message_id, conversation_id) => {
+    if (conversation_id === data._id) {
+      setData((prevData) => {
+        const updatedMessages = prevData.messages.map((message) => {
+          if (message._id === message_id) {
+            return { ...message, seen: { status: true, date: new Date() } };
+          }
+          return message;
+        });
+        return { ...prevData, messages: updatedMessages };
+      });
+    }
+  };
+
   // Event listener for "getMessage" event
   const handleGetMessageEvent = (message, conversation_id) => {
     if (conversation_id === data._id) {
       if (message.from !== authId) {
         mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id });
+        console.log(message)
+        socket.emit('messageSeen', message._id, conversation_id, selectedReceiverData._id)
       }
       updateMessages(message, conversation_id);
     }
@@ -72,7 +95,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   };
 
   // Function to update messages
-  const updateMessages = (message, conversation_id) => {
+  const updateMessages = (message) => {
     setData((prevData) => ({
       ...prevData,
       messages: [...prevData.messages, message],
@@ -196,7 +219,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
           <Text as='i' fontSize='sm' textAlign='start' h='15px'>{typing}</Text>
         </Stack>
         <Stack display='flex' justifySelf='flex-end'>
-          {data.messages?.length > 0 && <MessageInput data={data} />}
+          {data && <MessageInput data={data} />}
         </Stack>
       </Stack>
     </Stack>
