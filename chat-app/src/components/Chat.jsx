@@ -4,65 +4,74 @@ import OnlineUsers from './OnlineUsers'
 import { useChat } from '../Contexts/ChatProvider'
 import { getConversations } from '../api/ChatApi'
 import { useState, useEffect } from 'react'
-import useAuth from '../hooks/useAuth'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
 import ElapsedTime from '../utils/ElapsedTime'
 import SyncLoader from "react-spinners/SyncLoader";
-import useSocket from '../hooks/useSocket'
 
-const Chat = () => {
+const Chat = ({ socket, authId }) => {
     const { colorMode } = useColorMode()
-    const { setSelectedReceiverData } = useChat()
-    const { auth } = useAuth();
-    const queryClient = useQueryClient();
-    const { socket } = useSocket()
+    const { setSelectedReceiverData, opened, selectedReceiverData } = useChat()
     const [conversations, setConversations] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [success, setSuccess] = useState(false)
+    const [error, setError] = useState(false)
 
-    const Conversations = useQuery({
-        queryKey: ['conversations', { myId: auth.user._id }],
-        queryFn: getConversations,
-        enabled: false,
-    });
+    useEffect(() => {
+        fetchDataAndSetConversations()
+    }, [])
+
+    useEffect(() => {
+        console.log('aaaaa')
+        setConversations((prevConversations) =>
+            prevConversations.map((conv) =>
+                conv._id === selectedReceiverData
+                    ? {
+                        ...conv,
+                        messages: conv.messages.map((msg, index) =>
+                            index === conv.messages.length - 1
+                                ? { ...msg, seen: { status: true } }
+                                : msg
+                        ),
+                    }
+                    : conv
+            )
+        );
+    }, [selectedReceiverData]);
+
+    useEffect(() => {
+        socket.on("getMessage", handleNewMessage);
+        return () => {
+            socket.off("getMessage", handleNewMessage);
+        };
+    }, [conversations])
 
     const fetchDataAndSetConversations = async () => {
-        const freshData = await queryClient.fetchQuery({
-            queryKey: ['conversations', { myId: auth.user._id }],
-            getConversations,
-        });
-        console.log(freshData)
-        setConversations(freshData);
+        const response = await getConversations(authId)
+        response.success
+            ? (setConversations(response.data), setLoading(false), setSuccess(true), setError(false))
+            : (setLoading(false), setSuccess(false), setError(true));
     };
 
-    useEffect(() => {
-        fetchDataAndSetConversations();
-        const intervalId = setInterval(fetchDataAndSetConversations, 60000);
-        return () => clearInterval(intervalId);
-    }, []);
-
-    useEffect(() => {
-        if (!socket) return
-        socket.on("getMessage", (message, conversation_id) => {
-            console.log('aaaaa')
-            const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
-            setConversations(prevConversations =>
-                prevConversations.map((conv, index) =>
-                    index === conversationIndex ? { ...conv, messages: [...conv.messages, message] } : conv
-                )
-            );
-        });
-    }, [socket])
+    const handleNewMessage = (message, conversation_id) => {
+        console.log('new message arrived');
+        const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
+        setConversations((prevConversations) =>
+            prevConversations.map((conv, index) =>
+                index === conversationIndex ? { ...conv, messages: [...conv.messages, message] } : conv
+            )
+        );
+    };
 
     const handleConversationClick = (data) => {
         setSelectedReceiverData(data.user)
-        setTimeout(() => {
-            fetchDataAndSetConversations()
-        }, [500])
     }
 
     const Count = (data) => {
         let e = 0;
-        let i = data.messages.length;
-        for (; i > 1 && data.messages[i - 1].from !== auth.user._id && !data.messages[i - 1].seen.status; e++, i--);
+        let i = data.messages.length - 1;
+        do {
+            e++
+            i--
+        } while (i > 0 && data.messages[i].from !== authId && !data.messages[i].seen.status)
         if (e > 9) return '+9'
         return e.toString()
     };
@@ -87,18 +96,18 @@ const Chat = () => {
             <Stack>
                 <OnlineUsers />
             </Stack>
-            {Conversations.isLoading && (
+            {loading && (
                 <Center h='100%'>
                     <SyncLoader />
                 </Center>
             )}
-            {Conversations.isError && (
+            {error && (
                 <Center h='100%'>
                     <Text>Something went wrong.</Text>
                     <Text>Try reloading the page.</Text>
                 </Center>
             )}
-            {Conversations.isSuccess && Conversations.data?.length > 0 && (
+            {success && conversations?.length > 0 && (
                 <Stack overflow='auto'>
                     {conversations.map((data) => (
                         <Stack key={data._id}>
@@ -112,7 +121,7 @@ const Chat = () => {
                                         </Avatar>
                                         <Stack ml='10px' textAlign='start'>
                                             <Text fontWeight='700' fontSize='md'>{data.user.firstName + ' ' + data.user.lastName}</Text>
-                                            {data.messages[data.messages.length - 1].from === auth.user._id
+                                            {data.messages[data.messages.length - 1].from === authId
                                                 ? <Text fontWeight='500' color='#6F7276' fontSize='sm'>You: {data.messages[data.messages.length - 1].text}</Text>
                                                 : <>
                                                     {!data.messages[data.messages.length - 1].seen?.status ? (
@@ -125,7 +134,7 @@ const Chat = () => {
                                     </Center>
                                     <Stack display='flex' alignItems='center' p={2}>
                                         <Text color='#6F7276' fontSize='xs'><ElapsedTime time={data.messages[data.messages.length - 1].created_at} dateNow={new Date()} /></Text>
-                                        {data.messages[data.messages.length - 1].from !== auth.user._id && !data.messages[data.messages.length - 1].seen.status &&
+                                        {data.messages[data.messages.length - 1].from !== authId && !data.messages[data.messages.length - 1].seen.status &&
                                             <Text display='flex' justifyContent='center' alignItems='center' color='white' borderRadius='50px' bgColor='#FA474F' p={0} w='20px' h='20px'>
                                                 {Count(data)}
                                             </Text>}
@@ -136,7 +145,7 @@ const Chat = () => {
                     ))}
                 </Stack>
             )}
-            {Conversations.isSuccess && Conversations.data?.length === 0 && (
+            {success && conversations?.length === 0 && (
                 <Center h='100%'>
                     <Text>No conversations yet.</Text>
                 </Center>

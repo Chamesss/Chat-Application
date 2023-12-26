@@ -1,12 +1,15 @@
 import axios from "./axios";
 
-const getConversation = async ({ queryKey }) => {
+const getConversation = async (sender_Id, receiver_Id) => {
     try {
-        const [_, data] = queryKey
-        const response = await axios.get(`/chat/conversation/find/${data.sender_Id}/${data.receiver_Id}`);
-        return response.data;
+        const response = await axios.get(`/chat/conversation/find/${sender_Id}/${receiver_Id}`);
+        return { data: response.data, success: true }
     } catch (error) {
-        throw new Error(error.response.data)
+        if (error.response.status === 404) {
+            await addConversation({ senderId: sender_Id, receiver_id: receiver_Id })
+            return getConversation(sender_Id, receiver_Id)
+        }
+        throw error
     }
 };
 
@@ -22,17 +25,16 @@ const addConversation = async (data) => {
     }
 }
 
-const getConversations = async({queryKey}) => {
+const getConversations = async (id) => {
     try {
-        const [_, data] = queryKey
-        const response = await axios.get(`/chat/conversation/${data.myId}`)
-        return response.data
+        const response = await axios.get(`/chat/conversation/${id}`)
+        return ({ data: response.data, success: true })
     } catch (error) {
         throw new Error(error.response.data)
     }
 }
 
-const messageSeen = async(data) => {
+const messageSeen = async (data) => {
     try {
         const response = await axios.post(`/chat/conversation/seen/${data.firstId}/${data.secondId}`)
         return response.data

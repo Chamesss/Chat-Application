@@ -15,7 +15,7 @@ const initializeSocket = (server) => {
     console.log(`user ${user_id} connected.`);
 
     // Connection event
-    socket.on("connectStatus", async () => {
+    const setOnline = async () => {
       try {
         await User.findByIdAndUpdate(user_id, {
           $push: { sockets: socket.id },
@@ -24,7 +24,8 @@ const initializeSocket = (server) => {
       } catch (error) {
         console.log(error)
       }
-    })
+    }
+    setOnline()
 
     // Typing event
     socket.on("typing", async (conversation_id, senderName, receiver_id) => {
@@ -42,11 +43,14 @@ const initializeSocket = (server) => {
         const receiver = await User.findById(receiver_id);
         const sender = await User.findById(user_id)
         const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: true, seen: { status: false } }
-        await Conversation.findByIdAndUpdate(conversation_id, {
-          $push: { messages: message }
-        })
-        receiver?.sockets?.forEach(socket => io.to(socket).emit("getMessage", message, conversation_id));
-        sender?.sockets?.forEach(socket => io.to(socket).emit("getMessage", message, conversation_id));
+        const updatedConversation = await Conversation.findByIdAndUpdate(
+          conversation_id,
+          { $push: { messages: message } },
+          { new: true }
+        );
+        const newMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
+        receiver?.sockets?.map(socket => io.to(socket).emit("getMessage", newMessage, conversation_id));
+        sender?.sockets?.map(socket => io.to(socket).emit("getMessage", newMessage, conversation_id));
       } catch (error) {
         const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: false }
         console.log(error)

@@ -84,7 +84,11 @@ exports.getConversationOfTwoUsers = async (req, res) => {
             const conversation = await Conversation.findOne({
                 'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
             });
-            res.status(200).json(conversation);
+            if (!conversation) {
+                res.status(404).json({ error: 'Conversation not found' });
+            } else {
+                res.status(200).json(conversation);
+            }
         } else {
             const conversation = await Conversation.aggregate([
                 {

@@ -20,23 +20,21 @@ const Application = () => {
       setSocket(io("ws://localhost:8080", {
         query: `user_id=${auth.user._id}`
       }))
-      return
     }
-    socket.emit("connectStatus")
     return () => {
       socket?.off("connect");
     };
-  }, [auth, socket])
+  }, [auth])
 
   return (
     <Stack w='100%' m='auto' flexDirection='row' textAlign='center' px={6}>
       <Stack w='30%'>
-        <Chat />
+        {socket && auth && <Chat socket={socket} authId={auth.user._id} />}
       </Stack>
       <Stack w='70%'>
-        <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='95vh' boxShadow='md'>
-          {!selectedReceiverData ? (<DefaultMessage />) : (<Messages />)}
-        </Stack>
+        {socket && auth && <Stack bgColor={colorMode === 'light' ? 'white' : '#131827'} p={6} borderRadius={15} w='100%' h='95vh' boxShadow='md'>
+          {selectedReceiverData ? (<Messages socket={socket} authId={auth.user._id} selectedReceiverData={selectedReceiverData} />) : (<DefaultMessage />)}
+        </Stack>}
       </Stack>
     </Stack>
   )
