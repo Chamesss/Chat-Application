@@ -1,8 +1,8 @@
 import React from 'react'
 import { Avatar, Stack, AvatarBadge, useColorMode, Divider } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import { getUsers } from '../api/UserApi'
-import { useChat } from '../Contexts/ChatProvider'
+import { getUsers } from '../../api/UserApi'
+import { useChat } from '../../Contexts/ChatProvider'
 
 const OnlineUsers = () => {
   const { colorMode } = useColorMode()

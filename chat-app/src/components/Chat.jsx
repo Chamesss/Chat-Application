@@ -1,6 +1,6 @@
 import { InputGroup, InputLeftElement, Stack, Input, useColorMode, AvatarBadge, Box, Text, Avatar, Center } from '@chakra-ui/react'
 import { Search2Icon } from '@chakra-ui/icons'
-import OnlineUsers from './OnlineUsers'
+import OnlineUsers from './ChatComponents/OnlineUsers'
 import { useChat } from '../Contexts/ChatProvider'
 import { getConversations } from '../api/ChatApi'
 import { useState, useEffect } from 'react'
@@ -29,6 +29,7 @@ const Chat = ({ socket, authId }) => {
     }, [conversations])
 
     const fetchDataAndSetConversations = async () => {
+        console.log('fetch started')
         const response = await getConversations(authId)
         response.success
             ? (setConversations(response.data), setLoading(false), setSuccess(true), setError(false))

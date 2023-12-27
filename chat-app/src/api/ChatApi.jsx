@@ -1,8 +1,8 @@
 import axios from "./axios";
 
-const getConversation = async (sender_Id, receiver_Id) => {
+const getConversation = async (sender_Id, receiver_Id, page, limit = 10) => {
     try {
-        const response = await axios.get(`/chat/conversation/find/${sender_Id}/${receiver_Id}`);
+        const response = await axios.get(`/chat/conversation/find/${sender_Id}/${receiver_Id}?page=${page}&limit=${limit}`);
         return { data: response.data, success: true }
     } catch (error) {
         if (error.response.status === 404) {

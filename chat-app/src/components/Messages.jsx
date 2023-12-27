@@ -1,12 +1,14 @@
-import { Divider, Stack, Text, useColorMode, Avatar, Skeleton, SkeletonCircle, Center } from '@chakra-ui/react'
-import ActionMenu from './ActionMenu'
-import MessageInput from './MessageInput'
-import StartConversation from './StartConversation'
+import { Divider, Stack, Text, useColorMode, Avatar, Skeleton, SkeletonCircle, Center, Box } from '@chakra-ui/react'
+import ActionMenu from './MessagesComponents/ActionMenu'
+import MessageInput from './MessagesComponents/MessageInput'
+import StartConversation from './MessagesComponents/StartConversation'
 import { useMutation } from '@tanstack/react-query'
 import { getConversation, messageSeen } from '../api/ChatApi'
-import ElapsedTime from '../utils/ElapsedTime'
 import { useEffect, useState, useRef } from 'react'
 import { useChat } from '../Contexts/ChatProvider'
+import SenderMessage from './MessagesComponents/senderMessage'
+import ReceiverMessage from './MessagesComponents/ReceiverMessage'
+import { IoReload } from "react-icons/io5";
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
   const { colorMode } = useColorMode()
@@ -17,15 +19,14 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
+  let [bundle, setBundle] = useState(1)
+  const [isScrollEnabled, setScrollEnabled] = useState(true);
+  const messageContainerRef = useRef(null);
+  const prevScrollHeightRef = useRef(null);
 
   useEffect(() => {
     fetchConversationFunction()
   }, [])
-
-  useEffect(() => {
-    conversationContainerRef.current?.scrollTo?.(0, conversationContainerRef.current?.scrollHeight);
-    data?.messages && setChatId(data._id)
-  }, [data]);
 
   useEffect(() => {
     socket.on("typing", handleTypingEvent)
@@ -40,10 +41,35 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     };
   }, [data, typing]);
 
+  useEffect(() => {
+    messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight);
+  }, [success]);
+
+  useEffect(() => {
+    const messageContainer = messageContainerRef.current;
+
+    if (messageContainer && prevScrollHeightRef.current !== null) {
+      // Set the scroll position to keep the user at the bottom of the messages
+      messageContainer.scrollTop = messageContainer.scrollHeight - prevScrollHeightRef.current;
+      prevScrollHeightRef.current = null; // Reset the stored scroll position
+    }
+  }, [data]);
+
+  // Attach the scroll event listener when the component mounts
+  useEffect(() => {
+    if (success && isScrollEnabled) {
+      const messageContainer = messageContainerRef.current;
+      messageContainer.addEventListener('wheel', handleScroll);
+      return () => {
+        messageContainer.removeEventListener('wheel', handleScroll);
+      };
+    }
+  }, [data]);
+
   const fetchConversationFunction = async () => {
-    const response = await getConversation(selectedReceiverData._id, authId)
+    const response = await getConversation(selectedReceiverData._id, authId, bundle)
     response.success
-      && (setData(response.data), setSuccess(true), setError(false), setLoading(false))
+      && (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(bundle++), setChatId(data._id))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
@@ -51,10 +77,12 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   }
 
   // Event listener for "typing" event
+  let activityTimer
   const handleTypingEvent = (senderName, conversation_id) => {
     if (conversation_id === data._id) {
       setTyping(`${senderName} is typing...`);
-      setTimeout(() => {
+      clearTimeout(activityTimer)
+      activityTimer = setTimeout(() => {
         setTyping('');
       }, 3000);
     }
@@ -111,6 +139,27 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
+  const handleScroll = async (event) => {
+    const messageContainer = messageContainerRef.current;
+    if (messageContainer.scrollTop === 0 && event.deltaY < 0) {
+      setScrollEnabled(false);
+      console.log('fetching...')
+      const messageContainer = messageContainerRef.current;
+      prevScrollHeightRef.current = messageContainer.scrollHeight;
+      const response = await getConversation(selectedReceiverData._id, authId, bundle)
+      setData((prevData) => ({
+        ...prevData,
+        messages: [
+          ...response.data.messages.reverse(),
+          ...(prevData.messages || [])
+        ]
+      }));
+      setTimeout(() => {
+        setScrollEnabled(true);
+      }, 5000);
+    }
+  };
+
   return (
     <Stack maxH='100%' justifyContent='space-between'>
       <Stack h='100%'>
@@ -138,74 +187,31 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
             </Center>
           )}
           {success && (
-            <Stack h='100%' ref={conversationContainerRef} overflowY='auto'>
-              {data.messages.length > 0 ? (
-                <Stack position='relative' h='100%' >
+            <Stack id="messageContainer" h='100%' ref={messageContainerRef} overflowY='auto'>
+              {data.messages?.length > 0 ? (
+                <Stack id="messageContainer" position='relative' h='100%'>
                   {data.messages.map((message, index) => (
-                    <Stack key={index} display='flex' w='100%' onTouchStart={() => handleStackClick(message)}>
+                    <Stack key={index} display='flex' w='100%'>
                       {message.from === authId ? (
                         <Stack direction='row' alignSelf='end' alignItems='center'>
-                          {message.status === true ? (
-                            <Stack direction='column' alignItems='end'>
-                              <Stack display='flex' flexDirection='row' justifyContent='flex-end' alignItems='center'>
-                                <Text fontSize='xs'>
-                                  <ElapsedTime time={message.created_at} dateNow={new Date()} />
-                                </Text>
-                                <Text
-                                  borderRadius={20}
-                                  px={4}
-                                  py={2}
-                                  w='fit-content'
-                                  color='white'
-                                  bgColor={colorMode === 'light' ? '#2A8BF2' : '#0E6DD8'}
-                                >
-                                  {message.text}
-                                </Text>
-                              </Stack>
-                              {data.messages.length - 1 === index && message.seen?.status && (
-                                <Text fontSize='0.7rem' as='i' textAlign='left'>Seen at {calculDate(message.seen.date)}</Text>
-                              )}
-                            </Stack>
-                          ) : (
-                            <Stack direction='row' alignSelf='end' alignItems='center'>
-                              <Text fontSize='xs'>Msg not sent</Text>
-                              <Text
-                                borderRadius={20}
-                                px={4}
-                                py={2}
-                                w='fit-content'
-                                color='red'
-                                bgColor={colorMode === 'light' ? '#BABABA' : '#888888'}
-                              >
-                                {message.text}
-                              </Text>
-                            </Stack>
-                          )}
+                          <Stack direction='column' alignItems='end'>
+                            <SenderMessage message={message} />
+                            {data.messages.length - 1 === index && message.seen?.status && (
+                              <Text fontSize='0.7rem' as='i' textAlign='left'>Seen at {calculDate(message.seen.date)}</Text>
+                            )}
+                          </Stack>
                         </Stack>
                       ) : (
                         <Stack direction='row' w='fit-content' display='flex' alignItems='center'>
                           {index === 0 || data.messages[index - 1].to !== message.to ? (
                             <Avatar size='sm' src={`./media/avatars/${selectedReceiverData.avatar}.jpg`} />
-                          ) : <div style={{ marginLeft: '2rem' }} />}
-                          <Stack
-                            borderRadius={20}
-                            py={2}
-                            px={4}
-                            bgColor={colorMode === 'light' ? '#EAE8ED' : '#252E48'}
-                            display='flex'
-                            justifyContent='center'
-                          >
-                            <Text>
-                              {message.text}
-                            </Text>
-                          </Stack>
-                          <Text fontSize='xs'>
-                            <ElapsedTime time={message.created_at} dateNow={new Date()} />
-                          </Text>
+                          ) : (
+                            <div style={{ marginLeft: '2rem' }} />
+                          )}
+                          <ReceiverMessage message={message} />
                         </Stack>
                       )}
                     </Stack>
-
                   ))}
                 </Stack>
               ) : (

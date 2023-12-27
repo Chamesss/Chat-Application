@@ -6,7 +6,7 @@ import { useChat } from '../Contexts/ChatProvider'
 import { io } from 'socket.io-client';
 import useAuth from '../hooks/useAuth';
 import useSocket from '../hooks/useSocket'
-import DefaultMessage from '../components/DefaultMessage'
+import DefaultMessage from '../components/MessagesComponents/DefaultMessage'
 
 const Application = () => {
   const { auth } = useAuth()

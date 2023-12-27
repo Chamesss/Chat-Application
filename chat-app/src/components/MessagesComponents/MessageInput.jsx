@@ -7,13 +7,13 @@ import {
 } from '@chakra-ui/react'
 import { BsSendFill } from "react-icons/bs";
 import { MdOutlineEmojiEmotions } from "react-icons/md";
-import CustomInput from './Input';
+import CustomInput from '../Input';
 import EmojiPicker from 'emoji-picker-react';
 import { IoMdPhotos } from "react-icons/io";
 import { GrAttachment } from "react-icons/gr";
-import useSocket from '../hooks/useSocket';
-import { useChat } from '../Contexts/ChatProvider';
-import useAuth from '../hooks/useAuth';
+import useSocket from '../../hooks/useSocket';
+import { useChat } from '../../Contexts/ChatProvider';
+import useAuth from '../../hooks/useAuth';
 
 const MessageInput = ({data}) => {
     const { colorMode } = useColorMode()

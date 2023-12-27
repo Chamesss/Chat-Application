@@ -80,10 +80,12 @@ exports.getAllConversations = async (req, res) => {
 
 exports.getConversationOfTwoUsers = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
         if (req.params.firstUserId !== req.params.secondUserId) {
             const conversation = await Conversation.findOne({
                 'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
-            });
+            }).skip((page - 1) * limit).limit(limit);
             if (!conversation) {
                 res.status(404).json({ error: 'Conversation not found' });
             } else {
@@ -103,7 +105,7 @@ exports.getConversationOfTwoUsers = async (req, res) => {
                         'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
                     }
                 }
-            ]);
+            ]).skip((page - 1) * limit).limit(limit);
             res.status(200).json(conversation[0]);
         }
     } catch (err) {
