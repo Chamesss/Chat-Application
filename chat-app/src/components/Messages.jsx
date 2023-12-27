@@ -12,17 +12,14 @@ import { IoReload } from "react-icons/io5";
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
   const { colorMode } = useColorMode()
-  const conversationContainerRef = useRef(null);
   const { setChatId } = useChat()
   const [typing, setTyping] = useState('')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
-  let [bundle, setBundle] = useState(1)
-  const [isScrollEnabled, setScrollEnabled] = useState(true);
+  const [bundle, setBundle] = useState(1)
   const messageContainerRef = useRef(null);
-  const prevScrollHeightRef = useRef(null);
 
   useEffect(() => {
     fetchConversationFunction()
@@ -42,34 +39,18 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   }, [data, typing]);
 
   useEffect(() => {
+    console.log('data changed')
+    console.log(data)
+  }, [data])
+
+  useEffect(() => {
     messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight);
   }, [success]);
-
-  useEffect(() => {
-    const messageContainer = messageContainerRef.current;
-
-    if (messageContainer && prevScrollHeightRef.current !== null) {
-      // Set the scroll position to keep the user at the bottom of the messages
-      messageContainer.scrollTop = messageContainer.scrollHeight - prevScrollHeightRef.current;
-      prevScrollHeightRef.current = null; // Reset the stored scroll position
-    }
-  }, [data]);
-
-  // Attach the scroll event listener when the component mounts
-  useEffect(() => {
-    if (success && isScrollEnabled) {
-      const messageContainer = messageContainerRef.current;
-      messageContainer.addEventListener('wheel', handleScroll);
-      return () => {
-        messageContainer.removeEventListener('wheel', handleScroll);
-      };
-    }
-  }, [data]);
 
   const fetchConversationFunction = async () => {
     const response = await getConversation(selectedReceiverData._id, authId, bundle)
     response.success
-      && (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(bundle++), setChatId(data._id))
+      && (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(bundle + 1), setChatId(data._id))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
@@ -139,26 +120,17 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
-  const handleScroll = async (event) => {
-    const messageContainer = messageContainerRef.current;
-    if (messageContainer.scrollTop === 0 && event.deltaY < 0) {
-      setScrollEnabled(false);
-      console.log('fetching...')
-      const messageContainer = messageContainerRef.current;
-      prevScrollHeightRef.current = messageContainer.scrollHeight;
-      const response = await getConversation(selectedReceiverData._id, authId, bundle)
-      setData((prevData) => ({
-        ...prevData,
-        messages: [
-          ...response.data.messages.reverse(),
-          ...(prevData.messages || [])
-        ]
-      }));
-      setTimeout(() => {
-        setScrollEnabled(true);
-      }, 5000);
-    }
-  };
+  const handleFetching = async () => {
+    console.log('aaaa')
+    const response = await getConversation(selectedReceiverData._id, authId, bundle)
+    setData((prevData) => ({
+      ...prevData,
+      messages: [
+        ...response.data.messages.reverse(),
+        ...(prevData.messages || [])
+      ]
+    }));
+  }
 
   return (
     <Stack maxH='100%' justifyContent='space-between'>
@@ -187,9 +159,12 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
             </Center>
           )}
           {success && (
-            <Stack id="messageContainer" h='100%' ref={messageContainerRef} overflowY='auto'>
+            <Stack h='100%' ref={messageContainerRef} overflowY='auto'>
               {data.messages?.length > 0 ? (
                 <Stack id="messageContainer" position='relative' h='100%'>
+                  <Center w='100%' onClick={handleFetching}>
+                    <IoReload />
+                  </Center>
                   {data.messages.map((message, index) => (
                     <Stack key={index} display='flex' w='100%'>
                       {message.from === authId ? (
