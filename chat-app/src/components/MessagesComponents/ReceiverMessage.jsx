@@ -1,11 +1,11 @@
 import React from 'react'
-import { Stack, Text, useColorMode } from '@chakra-ui/react'
+import { Stack, Text, useColorMode, HStack } from '@chakra-ui/react'
 import ElapsedTime from '../../utils/ElapsedTime'
 
 const ReceiverMessage = ({ message }) => {
   const { colorMode } = useColorMode()
   return (
-    <>
+    <HStack>
       <Stack
         borderRadius={20}
         py={2}
@@ -21,7 +21,7 @@ const ReceiverMessage = ({ message }) => {
       <Text fontSize='xs'>
         <ElapsedTime time={message.created_at} dateNow={new Date()} />
       </Text>
-    </>
+    </HStack>
   )
 }
 

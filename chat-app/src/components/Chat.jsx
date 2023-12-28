@@ -29,7 +29,6 @@ const Chat = ({ socket, authId }) => {
     }, [conversations])
 
     const fetchDataAndSetConversations = async () => {
-        console.log('fetch started')
         const response = await getConversations(authId)
         response.success
             ? (setConversations(response.data), setLoading(false), setSuccess(true), setError(false))

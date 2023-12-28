@@ -1,4 +1,4 @@
-import { Divider, Stack, Text, useColorMode, Avatar, Skeleton, SkeletonCircle, Center, Box } from '@chakra-ui/react'
+import { Divider, Stack, Text, Avatar, Skeleton, SkeletonCircle, Center } from '@chakra-ui/react'
 import ActionMenu from './MessagesComponents/ActionMenu'
 import MessageInput from './MessagesComponents/MessageInput'
 import StartConversation from './MessagesComponents/StartConversation'
@@ -8,10 +8,8 @@ import { useEffect, useState, useRef } from 'react'
 import { useChat } from '../Contexts/ChatProvider'
 import SenderMessage from './MessagesComponents/senderMessage'
 import ReceiverMessage from './MessagesComponents/ReceiverMessage'
-import { IoReload } from "react-icons/io5";
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
-  const { colorMode } = useColorMode()
   const { setChatId } = useChat()
   const [typing, setTyping] = useState('')
   const [data, setData] = useState([])
@@ -19,7 +17,8 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
   const [bundle, setBundle] = useState(1)
-  const messageContainerRef = useRef(null);
+  const [end, setEnd] = useState(false)
+  const messageContainerRef = useRef(null)
 
   useEffect(() => {
     fetchConversationFunction()
@@ -39,18 +38,13 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   }, [data, typing]);
 
   useEffect(() => {
-    console.log('data changed')
-    console.log(data)
-  }, [data])
-
-  useEffect(() => {
     messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight);
   }, [success]);
 
   const fetchConversationFunction = async () => {
     const response = await getConversation(selectedReceiverData._id, authId, bundle)
-    response.success
-      && (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(bundle + 1), setChatId(data._id))
+    response.success &&
+      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(prev => prev + 1), setChatId(data._id))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
@@ -60,60 +54,48 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   // Event listener for "typing" event
   let activityTimer
   const handleTypingEvent = (senderName, conversation_id) => {
-    if (conversation_id === data._id) {
+    conversation_id === data?._id && (() => {
       setTyping(`${senderName} is typing...`);
-      clearTimeout(activityTimer)
+      clearTimeout(activityTimer);
       activityTimer = setTimeout(() => {
         setTyping('');
       }, 3000);
-    }
+    })();
   };
 
   // Event listener for "seen" event
   const handleSeenMessageEvent = (message_id, conversation_id) => {
-    if (conversation_id === data._id) {
-      setData((prevData) => {
-        const updatedMessages = prevData.messages.map((message) => {
-          if (message._id === message_id) {
-            return { ...message, seen: { status: true, date: new Date() } };
-          }
-          return message;
-        });
-        return { ...prevData, messages: updatedMessages };
-      });
-    }
+    conversation_id === data?._id &&
+      setData((prevData) => ({
+        ...prevData, messages: prevData.messages.map((message) =>
+          message._id === message_id ? { ...message, seen: { status: true, date: new Date() } } : message
+        ),
+      }));
   };
 
   // Event listener for "getMessage" event
   const handleGetMessageEvent = (message, conversation_id) => {
     if (conversation_id === data._id) {
-      if (message.from !== authId) {
-        mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id });
+      message.from !== authId && (
+        mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
         socket.emit('messageSeen', message._id, conversation_id, selectedReceiverData._id)
-      }
+      )
       updateMessages(message, conversation_id);
     }
   };
 
   // Event listener for "errorSendMessage" event
   const handleErrorSendMessageEvent = (message, conversation_id) => {
-    if (conversation_id === data._id) {
-      updateMessages(message);
-    }
+    conversation_id === data._id && updateMessages(message);
   };
 
   // Function to update messages
   const updateMessages = (message) => {
-    setData((prevData) => ({
-      ...prevData,
-      messages: [...prevData.messages, message],
-    }));
+    setData((prevData) => ({ ...prevData, messages: [...prevData.messages, message] }));
     setTyping('');
   };
 
-  const mutation = useMutation({
-    mutationFn: messageSeen
-  })
+  const mutation = useMutation({ mutationFn: messageSeen })
 
   const calculDate = (date) => {
     const seenDate = new Date(date);
@@ -121,15 +103,14 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   }
 
   const handleFetching = async () => {
-    console.log('aaaa')
     const response = await getConversation(selectedReceiverData._id, authId, bundle)
-    setData((prevData) => ({
-      ...prevData,
-      messages: [
-        ...response.data.messages.reverse(),
-        ...(prevData.messages || [])
-      ]
-    }));
+    response.data.messages.length < 20 && setEnd(true);
+    setData((prevData) => ({ ...prevData, messages: [...response.data.messages.reverse(), ...(prevData.messages)] }));
+    setBundle((prev) => prev + 1);
+  }
+
+  const handleScroll = e => {
+    e.target.scrollTop === 0 && !end && handleFetching()
   }
 
   return (
@@ -159,14 +140,11 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
             </Center>
           )}
           {success && (
-            <Stack h='100%' ref={messageContainerRef} overflowY='auto'>
+            <Stack h='100%' ref={messageContainerRef} overflowY='auto' onScroll={handleScroll}>
               {data.messages?.length > 0 ? (
                 <Stack id="messageContainer" position='relative' h='100%'>
-                  <Center w='100%' onClick={handleFetching}>
-                    <IoReload />
-                  </Center>
                   {data.messages.map((message, index) => (
-                    <Stack key={index} display='flex' w='100%'>
+                    <Stack display='flex' w='100%'>
                       {message.from === authId ? (
                         <Stack direction='row' alignSelf='end' alignItems='center'>
                           <Stack direction='column' alignItems='end'>

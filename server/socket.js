@@ -5,7 +5,7 @@ const Conversation = require('./models/conversation')
 const initializeSocket = (server) => {
   const io = socketIo(server, {
     cors: {
-      origin: 'http://localhost:5173',
+      origin: 'http://localhost:3001',
       credentials: true,
     },
   });

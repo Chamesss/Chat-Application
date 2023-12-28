@@ -84,8 +84,6 @@ exports.getConversationOfTwoUsers = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         const firstUserId = new mongoose.Types.ObjectId(req.params.firstUserId)
         const secondUserId = new mongoose.Types.ObjectId(req.params.secondUserId)
-        console.log('limit === ', limit)
-        console.log('page === ', page)
         if (req.params.firstUserId !== req.params.secondUserId) {
             const conversation = await Conversation.aggregate([
                 {
@@ -106,7 +104,6 @@ exports.getConversationOfTwoUsers = async (req, res) => {
                     $limit: 1
                 }
             ]);
-            console.log('conversation ===', conversation[0])
             if (!conversation) {
                 res.status(404).json({ error: 'Conversation not found' });
             } else {
