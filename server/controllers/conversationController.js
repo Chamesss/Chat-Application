@@ -86,29 +86,16 @@ exports.getConversationOfTwoUsers = async (req, res) => {
         const secondUserId = new mongoose.Types.ObjectId(req.params.secondUserId)
         if (req.params.firstUserId !== req.params.secondUserId) {
             const conversation = await Conversation.aggregate([
-                {
-                    $match: {
-                        'participant.user': { $all: [firstUserId, secondUserId] }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 1,
-                        participant: 1,
-                        messages: {
-                            $slice: ['$messages', (page - 1) * limit, limit]
-                        }
-                    }
-                },
-                {
-                    $limit: 1
-                }
+                { $match: { 'participant.user': { $all: [firstUserId, secondUserId] } } },
+                { $project: { _id: 1, participant: 1, messages: 1 } },
+                { $unwind: '$messages' },
+                { $sort: { 'messages.created_at': -1 } },
+                { $skip: (page - 1) * limit },
+                { $limit: limit },
+                { $group: { _id: '$_id', participant: { $first: '$participant' }, messages: { $push: '$messages' } } },
+                { $project: { _id: 1, participant: 1, messages: { $reverseArray: '$messages' } } }
             ]);
-            if (!conversation) {
-                res.status(404).json({ error: 'Conversation not found' });
-            } else {
-                res.status(200).json(conversation[0]);
-            }
+            res.status(conversation ? 200 : 404).json(conversation[0] || { error: 'Conversation not found' })
         } else {
             const conversation = await Conversation.aggregate([
                 {

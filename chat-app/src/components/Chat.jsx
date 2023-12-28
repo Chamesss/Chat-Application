@@ -9,7 +9,7 @@ import SyncLoader from "react-spinners/SyncLoader";
 
 const Chat = ({ socket, authId }) => {
     const { colorMode } = useColorMode()
-    const { setSelectedReceiverData, selectedReceiverData, chatId } = useChat()
+    const { setSelectedReceiverData, chatId } = useChat()
     const [conversations, setConversations] = useState([])
     const [loading, setLoading] = useState(true)
     const [success, setSuccess] = useState(false)
@@ -21,6 +21,7 @@ const Chat = ({ socket, authId }) => {
         fetchDataAndSetConversations()
     }, [chatId]);
 
+    // Socket event listeners
     useEffect(() => {
         socket.on("getMessage", handleNewMessage);
         return () => {
@@ -28,6 +29,7 @@ const Chat = ({ socket, authId }) => {
         };
     }, [conversations])
 
+    // Function to fetch conversations
     const fetchDataAndSetConversations = async () => {
         const response = await getConversations(authId)
         response.success
@@ -35,6 +37,7 @@ const Chat = ({ socket, authId }) => {
             : (setLoading(false), setSuccess(false), setError(true));
     };
 
+    // Function to handle new message
     const handleNewMessage = (message, conversation_id) => {
         const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
         conversation_id === chatId && message.from !== authId && (message.seen.status = true)
@@ -45,10 +48,7 @@ const Chat = ({ socket, authId }) => {
         );
     };
 
-    const handleConversationClick = (data) => {
-        setSelectedReceiverData(data.user)
-    }
-
+    // Function to count unseen messages
     const Count = (data) => {
         let e = 0;
         let i = data.messages.length - 1;
@@ -96,7 +96,7 @@ const Chat = ({ socket, authId }) => {
                     {conversations.map((data) => (
                         <Stack key={data._id}>
                             {data.messages.length > 0 && (
-                                <Box p={1} w='100%' onClick={() => handleConversationClick(data)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
+                                <Box p={1} w='100%' onClick={() => setSelectedReceiverData(data.user)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
                                     '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
                                 }}>
                                     <Center direction='row' p={2}>

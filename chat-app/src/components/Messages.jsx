@@ -10,21 +10,23 @@ import SenderMessage from './MessagesComponents/senderMessage'
 import ReceiverMessage from './MessagesComponents/ReceiverMessage'
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
-  const { setChatId } = useChat()
   const [typing, setTyping] = useState('')
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
-  const bundle = useRef(1)
   const [end, setEnd] = useState(false)
   const [currentScrollPosition, setCurrentScrollPosition] = useState(null)
   const messageContainerRef = useRef(null)
+  const bundle = useRef(1)
+  const { setChatId } = useChat()
 
+  // Fetch conversation
   useEffect(() => {
     fetchConversationFunction()
   }, [])
 
+  // Socket events listeners
   useEffect(() => {
     socket.on("typing", handleTypingEvent)
     socket.on("getMessage", handleGetMessageEvent)
@@ -38,22 +40,27 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     };
   }, [data, typing]);
 
+  // Scroll event after data display
   useEffect(() => {
     messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight)
   }, [success])
 
+  // Prev scroll event after pushing old data
   useLayoutEffect(() => {
     bundle.current > 1 && messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight - currentScrollPosition)
   }, [data])
 
+  // Fetch data when component mount && Handle seen status
   const fetchConversationFunction = async () => {
     const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
     response.success &&
-      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(data._id), (bundle.current = bundle.current + 1))
+      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(data._id),
+        (bundle.current = bundle.current + 1), (response.data.messages.length < 20 && setEnd(true)))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
-        socket.emit('messageSeen', response.data.messages[response.data.messages.length - 1]._id, response.data._id, selectedReceiverData._id))
+        socket.emit('messageSeen', response.data.messages[response.data.messages.length - 1]._id,
+          response.data._id, selectedReceiverData._id))
   }
 
   // Event listener for "typing" event
@@ -89,7 +96,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     }
   };
 
-  // Event listener for "errorSendMessage" event
+  // Function for "errorSendMessage" event
   const handleErrorSendMessageEvent = (message, conversation_id) => {
     conversation_id === data._id && updateMessages(message)
   }
@@ -100,21 +107,27 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     setTyping('')
   }
 
+  // Post seen mutation
   const mutation = useMutation({ mutationFn: messageSeen })
 
+  // Function to form date
   const calculDate = (date) => {
     const seenDate = new Date(date)
     return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
+  // Pagination handling
   const handleFetching = async () => {
     setCurrentScrollPosition(messageContainerRef.current.scrollHeight)
+    console.log(bundle.current)
     const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
+    console.log(response.data)
     response.data.messages.length < 20 && setEnd(true)
     bundle.current = bundle.current + 1
-    setData((prevData) => ({ ...prevData, messages: [...response.data.messages.reverse(), ...(prevData.messages)] }))
+    setData((prevData) => ({ ...prevData, messages: [...response.data.messages, ...(prevData.messages)] }))
   }
 
+  // Scroll top event Listener
   const handleScroll = e => {
     e.target.scrollTop === 0 && !end && handleFetching()
   }
@@ -183,7 +196,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
           <Text as='i' fontSize='sm' textAlign='start' h='15px'>{typing}</Text>
         </Stack>
         <Stack display='flex' justifySelf='flex-end'>
-          {data && <MessageInput data={data} />}
+          {data && <MessageInput data={data} socket={socket} />}
         </Stack>
       </Stack>
     </Stack>
