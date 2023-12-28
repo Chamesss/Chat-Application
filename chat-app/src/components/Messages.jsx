@@ -4,7 +4,7 @@ import MessageInput from './MessagesComponents/MessageInput'
 import StartConversation from './MessagesComponents/StartConversation'
 import { useMutation } from '@tanstack/react-query'
 import { getConversation, messageSeen } from '../api/ChatApi'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import { useChat } from '../Contexts/ChatProvider'
 import SenderMessage from './MessagesComponents/senderMessage'
 import ReceiverMessage from './MessagesComponents/ReceiverMessage'
@@ -16,8 +16,9 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
-  const [bundle, setBundle] = useState(1)
+  const bundle = useRef(1)
   const [end, setEnd] = useState(false)
+  const [currentScrollPosition, setCurrentScrollPosition] = useState(null)
   const messageContainerRef = useRef(null)
 
   useEffect(() => {
@@ -28,23 +29,27 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
     socket.on("typing", handleTypingEvent)
     socket.on("getMessage", handleGetMessageEvent)
     socket.on("MessageSeen", handleSeenMessageEvent)
-    socket.on("errorSendMessage", handleErrorSendMessageEvent);
+    socket.on("errorSendMessage", handleErrorSendMessageEvent)
     return () => {
-      socket.off("typing", handleTypingEvent);
-      socket.off("getMessage", handleGetMessageEvent);
+      socket.off("typing", handleTypingEvent)
+      socket.off("getMessage", handleGetMessageEvent)
       socket.off("MessageSeen", handleSeenMessageEvent)
-      socket.off("errorSendMessage", handleErrorSendMessageEvent);
+      socket.off("errorSendMessage", handleErrorSendMessageEvent)
     };
   }, [data, typing]);
 
   useEffect(() => {
-    messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight);
-  }, [success]);
+    messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight)
+  }, [success])
+
+  useLayoutEffect(() => {
+    bundle.current > 1 && messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight - currentScrollPosition)
+  }, [data])
 
   const fetchConversationFunction = async () => {
-    const response = await getConversation(selectedReceiverData._id, authId, bundle)
+    const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
     response.success &&
-      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setBundle(prev => prev + 1), setChatId(data._id))
+      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(data._id), (bundle.current = bundle.current + 1))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
@@ -55,12 +60,12 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   let activityTimer
   const handleTypingEvent = (senderName, conversation_id) => {
     conversation_id === data?._id && (() => {
-      setTyping(`${senderName} is typing...`);
-      clearTimeout(activityTimer);
+      setTyping(`${senderName} is typing...`)
+      clearTimeout(activityTimer)
       activityTimer = setTimeout(() => {
-        setTyping('');
-      }, 3000);
-    })();
+        setTyping('')
+      }, 3000)
+    })()
   };
 
   // Event listener for "seen" event
@@ -70,8 +75,8 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
         ...prevData, messages: prevData.messages.map((message) =>
           message._id === message_id ? { ...message, seen: { status: true, date: new Date() } } : message
         ),
-      }));
-  };
+      }))
+  }
 
   // Event listener for "getMessage" event
   const handleGetMessageEvent = (message, conversation_id) => {
@@ -80,33 +85,34 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
         mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
         socket.emit('messageSeen', message._id, conversation_id, selectedReceiverData._id)
       )
-      updateMessages(message, conversation_id);
+      updateMessages(message, conversation_id)
     }
   };
 
   // Event listener for "errorSendMessage" event
   const handleErrorSendMessageEvent = (message, conversation_id) => {
-    conversation_id === data._id && updateMessages(message);
-  };
+    conversation_id === data._id && updateMessages(message)
+  }
 
   // Function to update messages
   const updateMessages = (message) => {
-    setData((prevData) => ({ ...prevData, messages: [...prevData.messages, message] }));
-    setTyping('');
-  };
+    setData((prevData) => ({ ...prevData, messages: [...prevData.messages, message] }))
+    setTyping('')
+  }
 
   const mutation = useMutation({ mutationFn: messageSeen })
 
   const calculDate = (date) => {
-    const seenDate = new Date(date);
-    return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const seenDate = new Date(date)
+    return seenDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
   const handleFetching = async () => {
-    const response = await getConversation(selectedReceiverData._id, authId, bundle)
-    response.data.messages.length < 20 && setEnd(true);
-    setData((prevData) => ({ ...prevData, messages: [...response.data.messages.reverse(), ...(prevData.messages)] }));
-    setBundle((prev) => prev + 1);
+    setCurrentScrollPosition(messageContainerRef.current.scrollHeight)
+    const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
+    response.data.messages.length < 20 && setEnd(true)
+    bundle.current = bundle.current + 1
+    setData((prevData) => ({ ...prevData, messages: [...response.data.messages.reverse(), ...(prevData.messages)] }))
   }
 
   const handleScroll = e => {
