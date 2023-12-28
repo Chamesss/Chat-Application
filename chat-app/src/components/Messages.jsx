@@ -54,7 +54,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   const fetchConversationFunction = async () => {
     const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
     response.success &&
-      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(data._id),
+      (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(response.data._id),
         (bundle.current = bundle.current + 1), (response.data.messages.length < 20 && setEnd(true)))
     response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&

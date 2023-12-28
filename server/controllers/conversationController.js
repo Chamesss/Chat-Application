@@ -81,7 +81,7 @@ exports.getAllConversations = async (req, res) => {
 exports.getConversationOfTwoUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = 20;
         const firstUserId = new mongoose.Types.ObjectId(req.params.firstUserId)
         const secondUserId = new mongoose.Types.ObjectId(req.params.secondUserId)
         if (req.params.firstUserId !== req.params.secondUserId) {
