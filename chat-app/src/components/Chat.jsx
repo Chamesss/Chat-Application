@@ -3,7 +3,7 @@ import { Search2Icon } from '@chakra-ui/icons'
 import OnlineUsers from './ChatComponents/OnlineUsers'
 import { useChat } from '../Contexts/ChatProvider'
 import { getConversations } from '../api/ChatApi'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useLayoutEffect } from 'react'
 import ElapsedTime from '../utils/ElapsedTime'
 import SyncLoader from "react-spinners/SyncLoader";
 

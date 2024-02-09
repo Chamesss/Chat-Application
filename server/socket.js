@@ -1,6 +1,9 @@
 const socketIo = require("socket.io");
 const User = require('./models/user')
-const Conversation = require('./models/conversation')
+const Conversation = require('./models/conversation');
+const { listenerCount } = require("./models/user");
+const mongoose = require('mongoose');
+
 
 const initializeSocket = (server) => {
   const io = socketIo(server, {
@@ -43,11 +46,25 @@ const initializeSocket = (server) => {
         const receiver = await User.findById(receiver_id);
         const sender = await User.findById(user_id)
         const message = { to: receiver_id, from: user_id, created_at: new Date().toISOString(), text, status: true, seen: { status: false } }
-        const updatedConversation = await Conversation.findByIdAndUpdate(
+        let updatedConversation = await Conversation.findByIdAndUpdate(
           conversation_id,
           { $push: { messages: message } },
           { new: true }
         );
+        if (!updatedConversation) {
+          const newConversation = new Conversation({
+            participant: [
+              { user: user_id, sockets: [] },
+              { user: receiver_id, sockets: [] },
+            ],
+          });
+          await newConversation.save();
+          updatedConversation = await Conversation.findByIdAndUpdate(
+            newConversation._id,
+            { $push: { messages: message } },
+            { new: true }
+          );
+        }
         const newMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
         receiver?.sockets?.map(socket => io.to(socket).emit("getMessage", newMessage, conversation_id));
         sender?.sockets?.map(socket => io.to(socket).emit("getMessage", newMessage, conversation_id));
@@ -95,3 +112,17 @@ const initializeSocket = (server) => {
 };
 
 module.exports = initializeSocket;
+
+const getConversationOfTwoUsers = async (senderId, receiverId) => {
+  try {
+    const firstUserId = new mongoose.Types.ObjectId(senderId)
+    const secondUserId = new mongoose.Types.ObjectId(receiverId)
+    const conversation = await Conversation.aggregate([
+      { $match: { 'participant.user': { $all: [firstUserId, secondUserId] } } },
+      { $project: { _id: 1, participant: 1, messages: 1 } },
+    ]);
+    return conversation
+  } catch (err) {
+    throw new Error(err)
+  }
+};
