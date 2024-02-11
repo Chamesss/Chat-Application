@@ -24,7 +24,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   // Fetch conversation
   useEffect(() => {
     fetchConversationFunction()
-  }, [])
+  }, [selectedReceiverData])
 
   // Socket events listeners
   useEffect(() => {

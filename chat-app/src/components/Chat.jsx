@@ -9,7 +9,7 @@ import SyncLoader from "react-spinners/SyncLoader";
 
 const Chat = ({ socket, authId }) => {
     const { colorMode } = useColorMode()
-    const { setSelectedReceiverData, chatId } = useChat()
+    const { setSelectedReceiverData, selectedReceiverData, chatId } = useChat()
     const [conversations, setConversations] = useState([])
     const [loading, setLoading] = useState(true)
     const [success, setSuccess] = useState(false)
@@ -94,9 +94,11 @@ const Chat = ({ socket, authId }) => {
             {success && conversations?.length > 0 && (
                 <Stack overflow='auto'>
                     {conversations.map((data) => (
-                        <Stack key={data._id}>
+                    <>
                             {data.messages.length > 0 && (
-                                <Box p={1} w='100%' onClick={() => setSelectedReceiverData(data.user)} display='flex' justifyContent='space-between' borderRadius='20px' sx={{
+                                <Box p={1} w='100%' onClick={() => setSelectedReceiverData(data.user)} display='flex' justifyContent='space-between' borderRadius='20px'
+                                    bgColor={selectedReceiverData?._id === data.user._id ? '#F0F0F0' : '' }
+                                    sx={{
                                     '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
                                 }}>
                                     <Center direction='row' p={2}>
@@ -125,7 +127,7 @@ const Chat = ({ socket, authId }) => {
                                     </Stack>
                                 </Box>
                             )}
-                        </Stack>
+                            </>
                     ))}
                 </Stack>
             )}

@@ -12,15 +12,17 @@ import useAuth from '../hooks/useAuth'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { logOut } from '../api/UserApi'
 import { HamburgerIcon } from '@chakra-ui/icons'
+import useSocket from '../hooks/useSocket'
 
 const Header = () => {
     const { colorMode, toggleColorMode } = useColorMode();
     const [lightMode, setLightMode] = useState(colorMode === 'light' ? true : false)
     const { auth, setAuth } = useAuth()
     const { isOpen, onOpen, onClose } = useDisclosure()
+    const { socket } = useSocket()
     const btnRef = useRef()
     const navigate = useNavigate()
-    const location = useLocation() 
+    const location = useLocation()
 
     useEffect(() => {
         colorMode === 'dark' ? setLightMode(false) : setLightMode(true)
@@ -35,6 +37,7 @@ const Header = () => {
     };
 
     const handleLogout = async () => {
+        socket.disconnect();
         const response = await logOut()
         onClose()
         if (response.success === true) {
@@ -62,14 +65,14 @@ const Header = () => {
                                 <Center flexDirection='column'>
                                     <Avatar src={`./media/avatars/${auth.user.avatar}.jpg`} size='xl' />
                                     <Text fontWeight='600' mt={5}>{auth.user.firstName} {auth.user.lastName}</Text>
-                                    <Link style={{marginTop:'10px', color:'red'}} onClick={handleLogout}>Logout</Link>
+                                    <Link style={{ marginTop: '10px', color: 'red' }} onClick={handleLogout}>Logout</Link>
                                 </Center>
                             </DrawerBody>
                         ) : (
                             <DrawerBody>
                                 <Center flexDirection='column'>
-                                    <Link onClick={onClose} style={{marginTop:'10px', fontSize:'20px'}} to='login'>Login</Link>
-                                    <Link onClick={onClose} style={{marginTop:'10px', fontSize:'20px'}} to='register'>Register</Link>
+                                    <Link onClick={onClose} style={{ marginTop: '10px', fontSize: '20px' }} to='login'>Login</Link>
+                                    <Link onClick={onClose} style={{ marginTop: '10px', fontSize: '20px' }} to='register'>Register</Link>
                                 </Center>
                             </DrawerBody>
                         )}
