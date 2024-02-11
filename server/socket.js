@@ -56,14 +56,12 @@ const initializeSocket = (server) => {
             participant: [
               { user: user_id, sockets: [] },
               { user: receiver_id, sockets: [] },
-            ],
-          });
+            ]
+          })
           await newConversation.save();
-          updatedConversation = await Conversation.findByIdAndUpdate(
-            newConversation._id,
+          updatedConversation = await Conversation.findByIdAndUpdate(newConversation._id,
             { $push: { messages: message } },
-            { new: true }
-          );
+            { new: true })
         }
         const newMessage = updatedConversation.messages[updatedConversation.messages.length - 1];
         receiver?.sockets?.map(socket => io.to(socket).emit("getMessage", newMessage, conversation_id));
