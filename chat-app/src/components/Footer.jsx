@@ -34,7 +34,7 @@ const Footer = () => {
             </VStack>
             <Stack display='flex' direction={['column', 'row']} justifyContent='space-around' w='100%' mt={8}>
                 <Text color='rgba(255,255,255,0.7)'>
-                    Copyright &copy; 2023 All Rights Reserved.
+                    Copyright &copy; 2024 All Rights Reserved.
                 </Text>
                 <Text color='rgba(255,255,255,0.7)'>
                     Created by <span style={{ color: 'white', fontWeight: '700', opacity: '1' }}>Chamsedin Azouz</span>.
