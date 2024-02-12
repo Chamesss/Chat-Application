@@ -114,7 +114,7 @@ const Chat = ({ socket, authId }) => {
                         <>
                             {data.messages.length > 0 && (
                                 <Box p={1} w='100%' onClick={() => handleBoxClick(data.user, index)} display='flex' justifyContent='space-between' borderRadius='20px'
-                                    bgColor={selectedReceiverData?._id === data.user._id ? '#F0F0F0' : ''}
+                                    bgColor={selectedReceiverData?._id === data.user._id ? colorMode === 'light' ? '#F0F0F0' : '#2E3959' : ''}
                                     sx={{
                                         '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
                                     }}>
