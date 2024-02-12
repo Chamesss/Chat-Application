@@ -1,16 +1,18 @@
-import React from 'react'
 import { Avatar, Stack, AvatarBadge, useColorMode, Divider } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../../api/UserApi'
 import { useChat } from '../../Contexts/ChatProvider'
+import { useEffect, useState } from 'react'
 
 const OnlineUsers = () => {
   const { colorMode } = useColorMode()
   const { setSelectedReceiverData } = useChat()
   const Users = useQuery({
     queryKey: ['getUsers'],
-    queryFn: getUsers
+    queryFn: getUsers,
+    refetchInterval: 3000,
   })
+
 
   const handleConversationClick = (user) => {
     setSelectedReceiverData(user)

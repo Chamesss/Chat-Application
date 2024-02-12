@@ -13,17 +13,26 @@ import { IoMdPhotos } from "react-icons/io";
 import { GrAttachment } from "react-icons/gr";
 import { useChat } from '../../Contexts/ChatProvider';
 import useAuth from '../../hooks/useAuth';
+import { addConversation } from '../../api/ChatApi';
+import useSocket from '../../hooks/useSocket';
+import { useEffect } from 'react';
 
-const MessageInput = ({ data, socket }) => {
+const MessageInput = ({ data, fetchConversationFunction }) => {
     const { colorMode } = useColorMode()
     const { selectedReceiverData } = useChat()
     const { auth } = useAuth()
     const [message, setMessage] = useState(null)
+    const [conversationId, setConversationId] = useState(data?._id || null)
+    const { socket } = useSocket()
+
+    useEffect(() => {
+        setConversationId(data?._id || null)
+    }, [data])
 
     const handleInput = (e) => {
         e.preventDefault()
         setMessage(e.target.value)
-        socket.emit("typing", data._id, auth.user.firstName, selectedReceiverData._id)
+        socket.emit("typing", conversationId, auth.user.firstName, selectedReceiverData._id)
     }
 
     const handleImageUpload = () => {
@@ -35,7 +44,14 @@ const MessageInput = ({ data, socket }) => {
     };
 
     const handleSubmit = async () => {
-        socket.emit("sendMessage", auth.user._id, selectedReceiverData._id, data._id, message)
+        if (conversationId === null) {
+            const response = await addConversation({ senderId: auth.user._id, receiver_id: selectedReceiverData._id })
+            setConversationId(response._id)
+            await fetchConversationFunction()
+            socket.emit("sendMessage", auth.user._id, selectedReceiverData._id, response._id, message)
+        } else {
+            socket.emit("sendMessage", auth.user._id, selectedReceiverData._id, conversationId, message)
+        }
         setMessage('')
     }
 

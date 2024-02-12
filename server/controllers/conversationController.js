@@ -3,15 +3,8 @@ const User = require('../models/user')
 const mongoose = require('mongoose');
 
 exports.newConversation = async (req, res) => {
-    const conversation = await Conversation.findOne({
-        'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
-    });
-    if (conversation) return res.status(403).json('Conversation already exists')
     const newConversation = new Conversation({
-        participant: [
-            { user: req.body.senderId, sockets: [] },
-            { user: req.body.receiverId, sockets: [] },
-        ],
+        users: [req.body.senderId, req.body.receiverId]
     });
     try {
         const savedConversation = await newConversation.save();
@@ -42,12 +35,12 @@ exports.getAllConversations = async (req, res) => {
         const conversations = await Conversation.aggregate([
             {
                 $match: {
-                    'participant.user': { $in: [userId] }
+                    users: { $in: [userId] }
                 }
             },
             {
                 $project: {
-                    participant: '$participant',
+                    users: '$users',
                     messages: {
                         $slice: ['$messages', -11]
                     }
@@ -58,9 +51,9 @@ exports.getAllConversations = async (req, res) => {
             return res.status(204).json('No Content');
         }
         const extractedIds = conversations.flatMap((conversation) =>
-            conversation.participant[0].user.toString() !== req.params.userId
-                ? [conversation.participant[0].user]
-                : [conversation.participant[1].user]
+            conversation.users[0].toString() !== req.params.userId
+                ? [conversation.users[0]]
+                : [conversation.users[1]]
         );
         const users = await Promise.all(extractedIds.map(async (id) => {
             return await User.findById(id, '_id firstName lastName avatar status');
@@ -81,39 +74,50 @@ exports.getAllConversations = async (req, res) => {
 exports.getConversationOfTwoUsers = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
+        console.log(page)
         const limit = 20;
-        const firstUserId = new mongoose.Types.ObjectId(req.params.firstUserId)
-        const secondUserId = new mongoose.Types.ObjectId(req.params.secondUserId)
+        const firstUserId = new mongoose.Types.ObjectId(req.params.firstUserId);
+        const secondUserId = new mongoose.Types.ObjectId(req.params.secondUserId);
         if (req.params.firstUserId !== req.params.secondUserId) {
             const conversation = await Conversation.aggregate([
-                { $match: { 'participant.user': { $all: [firstUserId, secondUserId] } } },
-                { $project: { _id: 1, participant: 1, messages: 1 } },
+                {
+                    $match: {
+                        users: { $all: [firstUserId, secondUserId] }
+                    }
+                },
+
+                { $project: { _id: 1, users: 1, messages: 1 } },
                 { $unwind: '$messages' },
                 { $sort: { 'messages.created_at': -1 } },
                 { $skip: (page - 1) * limit },
                 { $limit: limit },
-                { $group: { _id: '$_id', participant: { $first: '$participant' }, messages: { $push: '$messages' } } },
-                { $project: { _id: 1, participant: 1, messages: { $reverseArray: '$messages' } } }
+                { $group: { _id: '$_id', users: { $first: '$users' }, messages: { $push: '$messages' } } },
+                { $project: { _id: 1, users: 1, messages: { $reverseArray: '$messages' } } }
             ]);
-            res.status(conversation ? 200 : 404).json(conversation[0] || { error: 'Conversation not found' })
-        } else {
-            const conversation = await Conversation.aggregate([
-                {
-                    $project: {
-                        participant: {
-                            $slice: ['$participant', 2]
-                        }
-                    }
-                },
-                {
-                    $match: {
-                        'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
-                    }
-                }
-            ]).skip((page - 1) * limit).limit(limit);
-            res.status(200).json(conversation[0]);
+            if (conversation.length === 0) {
+                return res.status(204).json()
+            }
+            return res.status(200).json(conversation[0]);
         }
+        // } else {
+        //     const conversation = await Conversation.aggregate([
+        //         {
+        //             $project: {
+        //                 participant: {
+        //                     $slice: ['$participant', 2]
+        //                 }
+        //             }
+        //         },
+        //         {
+        //             $match: {
+        //                 'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
+        //             }
+        //         }
+        //     ]).skip((page - 1) * limit).limit(limit);
+        //     res.status(200).json(conversation[0]);
+        // }
     } catch (err) {
+        console.log(err)
         res.status(500).json(err);
     }
 };
@@ -121,7 +125,7 @@ exports.getConversationOfTwoUsers = async (req, res) => {
 exports.messageSeen = async (req, res) => {
     try {
         const conversation = await Conversation.findOne({
-            'participant.user': { $all: [req.params.firstUserId, req.params.secondUserId] }
+            users: { $all: [req.params.firstUserId, req.params.secondUserId] }
         });
         if (conversation) {
             const messages = conversation.messages;

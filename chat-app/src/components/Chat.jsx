@@ -15,10 +15,13 @@ const Chat = ({ socket, authId }) => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
 
-    // the refetching of the conversations isn't updateding the conversations instantly
+    // the refetching of the conversations isn't updating the conversations instantly
     // with the current state, to be fixed up...
     useEffect(() => {
-        fetchDataAndSetConversations()
+        const interval = setInterval(() => {
+            fetchDataAndSetConversations()
+        }, 2500);
+        return () => clearInterval(interval);
     }, [chatId]);
 
     // Socket event listeners
@@ -38,8 +41,11 @@ const Chat = ({ socket, authId }) => {
     };
 
     // Function to handle new message
-    const handleNewMessage = (message, conversation_id) => {
-        const conversationIndex = conversations.findIndex((conv) => conv._id === conversation_id);
+    const handleNewMessage = async (message, conversation_id) => {
+        const conversationIndex = conversations?.findIndex((conv) => conv._id === conversation_id);
+        if (!conversationIndex || conversationIndex < 0) {
+            await fetchDataAndSetConversations()
+        }
         conversation_id === chatId && message.from !== authId && (message.seen.status = true)
         setConversations((prevConversations) =>
             prevConversations.map((conv, index) =>
@@ -58,6 +64,17 @@ const Chat = ({ socket, authId }) => {
         } while (i > 0 && data.messages[i].from !== authId && !data.messages[i].seen.status)
         if (e > 9) return '+9'
         return e.toString()
+    };
+
+    //handle Chat click
+    const handleBoxClick = (user, index) => {
+        setSelectedReceiverData(user);
+        setConversations(prevCnv => {
+            const updatedConversations = [...prevCnv];
+            updatedConversations[index].messages.map(c => c.seen.status = true)
+            //updatedConversations[index].messages[updatedConversations[index].messages.length - 1].seen.status = true;
+            return updatedConversations;
+        });
     };
 
     return (
@@ -93,14 +110,14 @@ const Chat = ({ socket, authId }) => {
             )}
             {success && conversations?.length > 0 && (
                 <Stack overflow='auto'>
-                    {conversations.map((data) => (
-                    <>
+                    {conversations.map((data, index) => (
+                        <>
                             {data.messages.length > 0 && (
-                                <Box p={1} w='100%' onClick={() => setSelectedReceiverData(data.user)} display='flex' justifyContent='space-between' borderRadius='20px'
-                                    bgColor={selectedReceiverData?._id === data.user._id ? '#F0F0F0' : '' }
+                                <Box p={1} w='100%' onClick={() => handleBoxClick(data.user, index)} display='flex' justifyContent='space-between' borderRadius='20px'
+                                    bgColor={selectedReceiverData?._id === data.user._id ? '#F0F0F0' : ''}
                                     sx={{
-                                    '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
-                                }}>
+                                        '&:hover': { backgroundColor: colorMode === 'light' ? '#F0F0F0' : '#2E3959', cursor: 'pointer' }
+                                    }}>
                                     <Center direction='row' p={2}>
                                         <Avatar size='lg' name={data.user.firstName} src={`./media/avatars/${data.user.avatar}.jpg`}>
                                             <AvatarBadge border='2px solid white' boxSize='0.6em' right='8px' bottom='8px' bg={data.user.status === 'Online' ? 'green.500' : 'grey'} />
@@ -127,7 +144,7 @@ const Chat = ({ socket, authId }) => {
                                     </Stack>
                                 </Box>
                             )}
-                            </>
+                        </>
                     ))}
                 </Stack>
             )}

@@ -11,18 +11,24 @@ import ReceiverMessage from './MessagesComponents/ReceiverMessage'
 
 const Messages = ({ socket, authId, selectedReceiverData }) => {
   const [typing, setTyping] = useState('')
-  const [data, setData] = useState([])
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(false)
   const [end, setEnd] = useState(false)
   const [currentScrollPosition, setCurrentScrollPosition] = useState(null)
   const messageContainerRef = useRef(null)
-  const bundle = useRef(1)
+  const [bundle, setBundle] = useState(1)
   const { setChatId } = useChat()
 
   // Fetch conversation
   useEffect(() => {
+    setEnd(false)
+    setError(false)
+    setBundle(1)
+    setLoading(true)
+    setSuccess(false)
+    setData(null)
     fetchConversationFunction()
   }, [selectedReceiverData])
 
@@ -47,20 +53,24 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
 
   // Prev scroll event after pushing old data
   useLayoutEffect(() => {
-    bundle.current > 1 && messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight - currentScrollPosition)
+    bundle > 1 && messageContainerRef.current?.scrollTo?.(0, messageContainerRef.current?.scrollHeight - currentScrollPosition)
   }, [data])
 
   // Fetch data when component mount && Handle seen status
   const fetchConversationFunction = async () => {
-    const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
-    response.success &&
+    const response = await getConversation(selectedReceiverData._id, authId, 1)
+    response.success && (
       (setData(response.data), setSuccess(true), setError(false), setLoading(false), setChatId(response.data._id),
-        (bundle.current = bundle.current + 1), (response.data.messages.length < 20 && setEnd(true)))
-    response.data.messages[response.data.messages?.length - 1]?.to === authId &&
+        (setBundle(prev => prev + 1)), (response.data.messages.length < 20 && setEnd(true))),
+      response.data.messages[response.data.messages?.length - 1]?.to === authId &&
       !response.data.messages[response.data.messages.length - 1]?.seen.status &&
       (mutation.mutate({ firstId: authId, secondId: selectedReceiverData._id }),
         socket.emit('messageSeen', response.data.messages[response.data.messages.length - 1]._id,
           response.data._id, selectedReceiverData._id))
+    )
+    response.success === false && (
+      setLoading(false), setData(null), setSuccess(false), setError(false), setChatId(null), setEnd(false), setBundle(1)
+    )
   }
 
   // Event listener for "typing" event
@@ -119,11 +129,9 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   // Pagination handling
   const handleFetching = async () => {
     setCurrentScrollPosition(messageContainerRef.current.scrollHeight)
-    console.log(bundle.current)
-    const response = await getConversation(selectedReceiverData._id, authId, bundle.current)
-    console.log(response.data)
+    const response = await getConversation(selectedReceiverData._id, authId, bundle)
     response.data.messages.length < 20 && setEnd(true)
-    bundle.current = bundle.current + 1
+    setBundle(prev => prev + 1)
     setData((prevData) => ({ ...prevData, messages: [...response.data.messages, ...(prevData.messages)] }))
   }
 
@@ -158,9 +166,9 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
               <Text>Something went wrong.</Text>
             </Center>
           )}
-          {success && (
+          {success ? (
             <Stack h='100%' ref={messageContainerRef} overflowY='auto' onScroll={handleScroll}>
-              {data.messages?.length > 0 ? (
+              {data.messages?.length > 0 && (
                 <Stack id="messageContainer" position='relative' h='100%'>
                   {data.messages.map((message, index) => (
                     <Stack display='flex' w='100%'>
@@ -186,17 +194,21 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
                     </Stack>
                   ))}
                 </Stack>
-              ) : (
-                <StartConversation data={selectedReceiverData} />
               )}
             </Stack>
-          )}
+          ) :
+            <>
+              {!loading && (
+                <StartConversation data={selectedReceiverData} />
+              )}
+            </>
+          }
         </Stack>
         <Stack>
           <Text as='i' fontSize='sm' textAlign='start' h='15px'>{typing}</Text>
         </Stack>
         <Stack display='flex' justifySelf='flex-end'>
-          {data && <MessageInput data={data} socket={socket} />}
+          <MessageInput data={data} fetchConversationFunction={fetchConversationFunction} />
         </Stack>
       </Stack>
     </Stack>

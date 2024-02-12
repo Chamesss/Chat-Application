@@ -73,7 +73,10 @@ exports.action = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
   try {
-    const users = await User.find({});
+    const data = await User.find({});
+    const offlineUsers = data.filter((d) => d.status === 'Offline')
+    const onlineUsers = data.filter((d) => d.status === 'Online')
+    const users = onlineUsers.concat(offlineUsers)
     res.status(200).json(users);
   } catch (err) {
     return res.status(500).json(err);
