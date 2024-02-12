@@ -141,7 +141,7 @@ const Messages = ({ socket, authId, selectedReceiverData }) => {
   }
 
   return (
-    <Stack maxH='100%' justifyContent='space-between'>
+    <Stack h='100%' w='100%' justifyContent='space-between'>
       <Stack h='100%'>
         <ActionMenu data={selectedReceiverData} />
         <Divider />

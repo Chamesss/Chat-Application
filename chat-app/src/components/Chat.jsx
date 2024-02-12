@@ -139,8 +139,8 @@ const Chat = ({ socket, authId }) => {
                                                 ? <Text fontWeight='500' color='#6F7276' fontSize='sm'>You: {data.messages[data.messages.length - 1].text}</Text>
                                                 : <>
                                                     {!data.messages[data.messages.length - 1].seen?.status ? (
-                                                        <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 20)}</Text>
-                                                    ) : (<Text fontWeight='500' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 20)}</Text>)
+                                                        <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 18)}</Text>
+                                                    ) : (<Text fontWeight='500' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 18)}</Text>)
                                                     }
                                                 </>
                                             }
