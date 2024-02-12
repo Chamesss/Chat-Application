@@ -15,8 +15,7 @@ const Chat = ({ socket, authId }) => {
     const [success, setSuccess] = useState(false)
     const [error, setError] = useState(false)
 
-    // the refetching of the conversations isn't updating the conversations instantly
-    // with the current state, to be fixed up...
+    // fetching conversations each 2.5s
     useEffect(() => {
         const interval = setInterval(() => {
             fetchDataAndSetConversations()
@@ -35,8 +34,13 @@ const Chat = ({ socket, authId }) => {
     // Function to fetch conversations
     const fetchDataAndSetConversations = async () => {
         const response = await getConversations(authId)
+        const sortedConversations = response.data.slice().sort((a, b) => {
+            const lastMessageTimestampA = new Date(a.messages[a.messages.length - 1].created_at);
+            const lastMessageTimestampB = new Date(b.messages[b.messages.length - 1].created_at);
+            return lastMessageTimestampB - lastMessageTimestampA;
+        });
         response.success
-            ? (setConversations(response.data), setLoading(false), setSuccess(true), setError(false))
+            ? (setConversations(sortedConversations), setLoading(false), setSuccess(true), setError(false))
             : (setLoading(false), setSuccess(false), setError(true));
     };
 
@@ -65,6 +69,13 @@ const Chat = ({ socket, authId }) => {
         if (e > 9) return '+9'
         return e.toString()
     };
+
+    const truncateText = (text, maxLength) => {
+        if (text.length > maxLength) {
+            return text.slice(0, maxLength) + '...';
+        }
+        return text;
+    }
 
     //handle Chat click
     const handleBoxClick = (user, index) => {
@@ -128,8 +139,8 @@ const Chat = ({ socket, authId }) => {
                                                 ? <Text fontWeight='500' color='#6F7276' fontSize='sm'>You: {data.messages[data.messages.length - 1].text}</Text>
                                                 : <>
                                                     {!data.messages[data.messages.length - 1].seen?.status ? (
-                                                        <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.user.firstName}: {data.messages[data.messages.length - 1].text}</Text>
-                                                    ) : (<Text fontWeight='500' color='#6F7276' fontSize='sm'>{data.user.firstName}: {data.messages[data.messages.length - 1].text}</Text>)
+                                                        <Text fontWeight='700' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 20)}</Text>
+                                                    ) : (<Text fontWeight='500' color='#6F7276' fontSize='sm'>{data.user.firstName}: {truncateText(data.messages[data.messages.length - 1].text, 20)}</Text>)
                                                     }
                                                 </>
                                             }
